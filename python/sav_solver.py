@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from time import sleep
-from Model import Model
+from model import Model
+from results_storage import ResultsStorage, DEFAULT_STORAGE_CONFIG
+from plotter import Plotter, DEFAULT_PLOTTER_CONFIG
 
 class SAVSolver():
     """General SAV solver using same notations than in the JAES paper.
@@ -86,6 +88,8 @@ class SAVSolver():
         if (Fnl_val.shape[0] != self.model.N or self.model.J0.ndim != 1):
             raise Exception(f"Fnl(q) evaluated using EandFnl(q) must have {self.model.N} elements but has shape {Fnl_val.shape}")
         
+    ### Energy related functions ### 
+
     def Ek_tilde(self, p):
         """Returns 0.5 * p^T Mtilde^{-1} p, correponding to the 
         kinetic part of the pseudo-energy preserved by the scheme.
@@ -100,7 +104,7 @@ class SAVSolver():
                             - self.dt2 / 4 * self.model.J0 / self.model.M * self.model.K_op(self.model.J0 / self.model.M * p) 
                             - self.dt / (2 * self.model.M) * self.model.Rsv_op(p/self.model.M))
     
-    def Ek_tilde(self, p):
+    def Ek(self, p):
         """Returns 0.5 * p^T M^{-1} p, correponding to the 
         kinetic part of the energy of the conitnuous time system.
 
@@ -147,6 +151,33 @@ class SAVSolver():
             number: nonlinear part of the potential energy evaluated from r
         """
         return 0.5 * r * r
+
+    def E_tilde(self, q, p, r):
+        """Returns the preserved pseudo-energy of the scheme (eq 17)
+
+        Args:
+            q (vector): generalized coordinates mu_t+ q^{n-1/2}
+            p (vector): momentum p^n
+            r (_type_): scalar auxiliary variable r^n
+
+        Returns:
+            number: E^n
+        """
+        return self.Ek_tilde(p) + self.Ep_lin(q) + self.Ep_nl_sav(r)
+
+    def E_orig(self, q, p):
+        """Returns an evaluation of the original continuous time 
+        energy evaluated from q and p
+
+        Args:
+            q (vector): generalized coordinates mu_t+ q^{n-1/2}
+            p (vector): momentum p^n
+
+        Returns:
+            number: E^n
+        """
+        return self.Ep_lin(q) + self.Ep_nl(q) + self.Ek(p)
+    ### Intermediary solver functions ###
 
     def A0_inv(self, Rmid):
         """Recomputes A0_inv used in Shermann-Morrison solving 
@@ -219,6 +250,8 @@ class SAVSolver():
         self.epsilon = r - np.sqrt(2 * self.model.Enl(q) + self.C0)
         return - self.lamba0 * self.epsilon * self.model.M * np.sign(p) / (np.abs(p) + self.model.Num_eps)
 
+    ### Time stepping and integration ###
+
     def time_step(self, qlast, qnow, rn, unow, ConstantRmid = False):
         """Returns next state by solving (eq 19a, 19b, 19c)
 
@@ -238,7 +271,7 @@ class SAVSolver():
         # First, compute g
         pn = (qnow - qlast) * self.M_J0dt
         qn = (qlast + qnow)/2
-        self.gn = self.g(qnow) + self.g_mod(pn, qn, rn)
+        self.gn = self.g(qnow) + self.g_mod(qn, pn, rn)
 
         # Compute Rmid and G
         self.Gn = self.model.G(qnow)
@@ -255,10 +288,11 @@ class SAVSolver():
             - self.model.J0 * self.A0_inv_n * self.gn / den * self.gn.dot(self.A0_inv_n * self.RHSn) # 19b+19g
         
         # Update auxiliary variable
-        rnext = rn + self.gn.dot(qnext - qlast) / (2 * self.model.J0)
-        return qnext, rnext
+        rnext = rn + self.gn.dot((qnext - qlast) / (2 * self.model.J0))
+        return qnext, rnext, qn, pn, self.epsilon
     
-    def integrate(self, q0, u0, u_func, duration, plot = None, ConstantRmid = False):
+    def integrate(self, q0, u0, u_func, duration, ConstantRmid = False,
+                  storage_config = DEFAULT_STORAGE_CONFIG, plotter_config = DEFAULT_PLOTTER_CONFIG):
         """Integrates the dynamics using provided initial conditions, input function, 
         and duration.
 
@@ -267,14 +301,17 @@ class SAVSolver():
             u0 (vector): Initial condition, velocity u_0 = dot q(t=0)
             u_func (function): input vector as a function of time
             duration (number): simulation duration
-            plot (int, optional): Sepcifies which data to plot. Defaults to None.
+            plot (int, optional): Specifies which data to plot. Defaults to None.
             ConstantRmid (bool, optional): Specifies if Rmid needs to be recomputed at each time step. Defaults to False.
         """
         ### Time vector and storage initialization ###
         self.model.Nt = int(duration / self.dt)
         self.t = np.arange(self.model.Nt) * self.dt
 
-        qdata = np.zeros(self.model.Nt)
+        self.storage = ResultsStorage(**storage_config)
+        self.storage.reserve(self.t)
+        self.plotter = Plotter(**plotter_config)
+        self.plotter.init_plots()
 
         ### State initialization ###
         qlast = q0 - u0 * self.dt / 2
@@ -286,42 +323,25 @@ class SAVSolver():
             self.model.Rmidn = self.model.Rmid(q0)
             self.A0_inv_n = self.A0_inv(self.model.Rmidn)
 
-        if plot is not None:
-            fig = plt.figure()
-            plt.ion()
-            plt.show(block = False)
-            ax = plt.gca()
-            ax.set_ylim(-1, 1)
-            line1, = ax.plot(self.t[:2], np.zeros(2))
         ### Main loop ###
-        for i in range(self.model.Nt):
-            qnext, r = self.time_step(qlast, qnow, r, u_func(i * self.dt), ConstantRmid=ConstantRmid)
+        for i in range(self.model.Nt ):
+            qnext, r, qn, pn, epsilon = self.time_step(qlast, qnow, r, u_func(i * self.dt), ConstantRmid=ConstantRmid)
+            
+            self.storage.store(q = qn, p = pn, r= r,
+                           epsilon = epsilon, i = i, solver=self)
+            self.plotter.update_plots(self.storage, block=False)
+
             qlast = qnow
             qnow = qnext
-
-            if plot is not None:
-                qdata[i] = qnow[plot]
-                if ((i%1000) == 1):
-                    line1.set_ydata(qdata[:i])
-                    line1.set_xdata(self.t[:i])
-                    ax.set_xlim(0, self.t[i])
-                    minq = np.min(qdata)
-                    maxq = np.max(qdata)
-                    if (minq != maxq):
-                        ax.set_ylim(-1.2*minq*np.sign(minq), 1.2 * maxq*np.sign(maxq))
-
-                    fig.canvas.draw()
-                    fig.canvas.flush_events()
-                    # sleep(0.01)
-        plt.show(block = True)
+        self.plotter.update_plots(self.storage, block=True)
 
 if __name__ == "__main__":
     model = Model(10)
-    solver = SAVSolver(model, sr = 100)
+    solver = SAVSolver(model, sr = 1000)
     solver.check_sizes()
     q0 = np.ones(model.N)
     u0 = np.zeros(model.N)
     def u_func(t):
         return np.zeros(model.Nu)
-    solver.integrate(q0, u0, u_func, 100, plot=None)
+    solver.integrate(q0, u0, u_func, 10)
 
