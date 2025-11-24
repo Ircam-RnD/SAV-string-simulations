@@ -78,6 +78,7 @@ class Plotter():
                     self.ax_r = self.axs_qpr[idx]
                 except:
                     self.ax_r = self.axs_qpr
+                self.r_l, = self.ax_r.plot([0], [0])
                 self.ax_r.set_xlabel("Time [s]")
                 self.ax_r.set_ylabel("r")
             self.fig_qpr.tight_layout()
@@ -128,7 +129,8 @@ class Plotter():
             self.scale_y(self.ax_p, data.p[:Nt, self.q_idx])
 
         if self.plotr:
-            self.ax_r.plot(t, data.r[:Nt:self.stride], label= "r")
+            self.r_l.set_xdata(t)
+            self.r_l.set_ydata(data.r[:Nt:self.stride])
             self.scale_y(self.ax_r, data.r[:Nt:self.stride])
 
         if self.plotq or self.plotp or self.plotr:
