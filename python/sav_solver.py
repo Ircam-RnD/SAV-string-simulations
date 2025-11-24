@@ -177,6 +177,70 @@ class SAVSolver():
             number: E^n
         """
         return self.Ep_lin(q) + self.Ep_nl(q) + self.Ek(p)
+    
+    def P_stored(self, Enow, Enext):
+        """Return the energy variation P_stored^{n+1/2} given
+        the energy E^{n+1} and E^n (eq 16)
+
+        Args:
+            Enow (number): pseudo-energy E^n
+            Enext (number): pseudo-energy E^{n+1}
+
+        Returns:
+            number: P_stored^{n+1/2}
+        """
+        return (Enext - Enow) / self.dt
+
+    def P_diss(self, pnow, pnext, Rmid):
+        """Return the dissipated power P_diss^{n+1/2} given 
+        p^n, p^{n+1} and R_{mid}^{n+1/2} (eq 16)
+
+        Args:
+            pnow (vector): momentum p^n
+            pnext (vector): momentum p^{n+1}
+            Rmid (vector): dissipation matrix R_{mid}^{n+1/2}
+
+        Returns:
+            number: P_diss^{n+1/2}
+        """
+        mutv = (pnow + pnext) / (2 * self.model.M)
+        return mutv.dot( Rmid * mutv + self.model.Rsv_op(mutv))
+
+    def P_ext(self, pnow, pnext, G, u):
+        """Returns the power exchanged with the outer world through
+        power ports P_ext^{n+1/2} given p^n, p^{n+1}, G^{n+1/2}, u^{n+1/2} (eq 16)
+        The system receives energy for negative values.
+
+        Args:
+            pnow (vector): momentum p^n
+            pnext (vector): momentum p^{n+1}
+            G (matrix): input matrix G^{n+1/2}
+            u (vector): input vector u^{n+1/2}
+
+        Returns:
+            number: P_ext^{n+1/2}
+        """
+        mutv = (pnow + pnext) / (2 * self.model.M)
+        return -mutv.dot(G * u)
+
+    def P_tot(self, Enow, Enext, pnow, pnext, Rmid, G, u):
+        """Returns the discrete power balance. Should be zero up to
+        numerical precision! (eq 16)
+
+        Args:
+            Enow (number): pseudo-energy E^n
+            Enext (number): pseudo-energy E^{n+1}
+            pnow (vector): momentum p^n
+            pnext (vector): momentum p^{n+1}
+            Rmid (_type_): dissipation matrix R_{mid}^{n+1/2}
+            G (matrix): input matrix G^{n+1/2}
+            u (vector): input vector u^{n+1/2}
+
+        Returns:
+            number: P_tot^{n+1/2}
+        """
+        return self.P_stored(Enow, Enext) + self.P_diss(pnow, pnext, Rmid) + self.P_ext(pnow, pnext, G, u) 
+
     ### Intermediary solver functions ###
 
     def A0_inv(self, Rmid):
@@ -325,10 +389,11 @@ class SAVSolver():
 
         ### Main loop ###
         for i in range(self.model.Nt ):
-            qnext, r, qn, pn, epsilon = self.time_step(qlast, qnow, r, u_func(i * self.dt), ConstantRmid=ConstantRmid)
+            qnext, r, qn, pn, epsilon = self.time_step(qlast, qnow, r, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
             
             self.storage.store(q = qn, p = pn, r= r,
-                           epsilon = epsilon, i = i, solver=self)
+                           epsilon = epsilon, i = i, Rmid=self.Rmidn,
+                            G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self)
             self.plotter.update_plots(self.storage, block=False)
 
             qlast = qnow
