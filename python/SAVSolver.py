@@ -264,7 +264,7 @@ class SAVSolver():
 
         Args:
             q0 (vector): Initial condition, generalized coordinates
-            u0 (vector): Initial condition, velocity u_0 = \dot q(t=0)
+            u0 (vector): Initial condition, velocity u_0 = dot q(t=0)
             u_func (function): input vector as a function of time
             duration (number): simulation duration
             plot (int, optional): Sepcifies which data to plot. Defaults to None.
