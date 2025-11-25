@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 DEFAULT_PLOTTER_CONFIG = {
     "Energy" : True,
+    "Power" :True,
     "Drift" : True,
     "q_idx": np.array([0]),
     "p_idx": np.array([0]),
@@ -36,6 +37,19 @@ class Plotter():
             self.fig_energy.suptitle("Energy")
             self.ax_energy.set_ylabel("Energy (J)")
             self.ax_energy.set_xlabel("Time (s)")
+
+        if self.Power:
+            self.fig_power, self.axs_power = plt.subplots(2, 1, figsize=figsize, sharex = True)
+            self.Pstored_l, = self.axs_power[0].plot([0], [0], label= "P_stored")
+            self.Pdiss_l, = self.axs_power[0].plot([0], [0], label= "P_diss")
+            self.Pext_l, = self.axs_power[0].plot([0], [0], label= "P_ext")
+            self.Ptot_l, = self.axs_power[1].plot([0], [0], linewidth = 0, marker = "x")
+            self.axs_power[0].legend(loc= 'best')
+            self.fig_power.suptitle("Power")
+            self.axs_power[0].set_ylabel("Power (W)")
+            self.axs_power[1].set_ylabel("Error on energy balance (J)")
+            self.axs_power[1].set_xlabel("Time (s)")
+            self.axs_power[1].grid()
 
         if self.Drift:
             self.fig_drift = plt.figure(figsize=figsize)
@@ -88,10 +102,14 @@ class Plotter():
     def update_plots(self, data, block = False):
         if not block and not self.interactive:
             return 0
-        if (data.i % self.delay) !=0:
+        if (data.i % self.delay) !=0 and not block:
             return 0
         Nt = data.i
         t = data.t[:data.i:self.stride]
+        if len(t) >= 2:
+            dt = t[1] - t[0]
+        else:
+            dt = 1
         if self.Energy:
             self.Etot_l.set_xdata(t)
             self.Etot_l.set_ydata(data.Etot[:Nt:self.stride])
@@ -107,6 +125,23 @@ class Plotter():
             self.ax_energy.set_xlim(t[0], t[-1])
             self.fig_energy.canvas.draw()
             self.fig_energy.canvas.flush_events()
+
+        if self.Power:
+            self.Ptot_l.set_xdata(t)
+            self.Ptot_l.set_ydata(data.Ptot[:Nt:self.stride] * dt)
+            self.Pstored_l.set_xdata(t)
+            self.Pstored_l.set_ydata(data.Pstored[:Nt:self.stride])
+            self.Pdiss_l.set_xdata(t)
+            self.Pdiss_l.set_ydata(data.Pdiss[:Nt:self.stride])
+            self.Pext_l.set_xdata(t)
+            self.Pext_l.set_ydata(data.Pext[:Nt:self.stride])
+
+            self.scale_y(self.axs_power[0], data.Pstored[:Nt:self.stride], symmetric=True)
+            self.scale_y(self.axs_power[1], data.Ptot[:Nt:self.stride] * dt, symmetric=False)
+
+            self.axs_power[1].set_xlim(t[0], t[-1])
+            self.fig_power.canvas.draw()
+            self.fig_power.canvas.flush_events()
         
         if self.Drift:
             self.epsilon_l.set_xdata(t)
@@ -145,9 +180,12 @@ class Plotter():
         if block:
             plt.show(block=True)
         
-    def scale_y(self, ax, data, factor = 1.2):
+    def scale_y(self, ax, data, factor = 1.2, symmetric = False):
         mindata = np.min(data)
         maxdata = np.max(data)
+        if symmetric:
+            mindata = - max(abs(mindata), abs(maxdata))
+            maxdata = max(abs(mindata), abs(maxdata))
         if mindata != maxdata:
             ax.set_ylim(-factor * mindata*np.sign(mindata), factor * maxdata*np.sign(maxdata))
 

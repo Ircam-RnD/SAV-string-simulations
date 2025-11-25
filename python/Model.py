@@ -15,12 +15,12 @@ class Model():
         self.Rmid = lambda q: (0 * np.ones(self.N))
         # Non-diagonal system matrices as operators
         self.K_op = lambda x: (x)
-        self.Rsv_op = lambda x: (0.1 * x)
+        self.Rsv_op = lambda x: (0 * x)
         # Input matrix, may depend on the state
         self.G = lambda q: (np.ones((self.N, self.Nu)))
         # Nonlinear functions
-        self.Enl = lambda q: (0.25 * np.sum(q**4)) * 100
-        self.Fnl = lambda q: (q**3) * 100
+        self.Enl = lambda q: (0.25 * np.sum(q**4)) * 1
+        self.Fnl = lambda q: (q**3) * 1
         # Both functions are called at the same time in the solver,
         # in some cases it is then computationally interesting 
         # to compute both in the same function.

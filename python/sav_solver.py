@@ -8,7 +8,7 @@ from plotter import Plotter, DEFAULT_PLOTTER_CONFIG
 class SAVSolver():
     """General SAV solver using same notations than in the JAES paper.
     """
-    def __init__(self,model, sr = 44100):
+    def __init__(self,model, sr = 44100, lambda0 = 0):
         ### System definition ###
         self.model = model
 
@@ -20,7 +20,7 @@ class SAVSolver():
         # Shifting constant
         self. C0 = 0
         # Control parameter
-        self.lamba0 = 0
+        self.lamba0 = lambda0
         # Numerical epsilon
         self.model.Num_eps = 1e-16
 
@@ -380,7 +380,7 @@ class SAVSolver():
         ### State initialization ###
         qlast = q0 - u0 * self.dt / 2
         qnow = q0 + u0 * self.dt / 2
-        r = np.sqrt(2 * self.model.Enl(q0) + self.C0)
+        rnow = np.sqrt(2 * self.model.Enl(q0) + self.C0)
 
         if ConstantRmid:
             # Rmid vector is evaluated once at the begining of the simulation in this case
@@ -389,15 +389,16 @@ class SAVSolver():
 
         ### Main loop ###
         for i in range(self.model.Nt ):
-            qnext, r, qn, pn, epsilon = self.time_step(qlast, qnow, r, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
+            qnext, rnext, qn, pn, epsilon = self.time_step(qlast, qnow, rnow, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
             
-            self.storage.store(q = qn, p = pn, r= r,
+            self.storage.store(q = qn, p = pn, r= rnow,
                            epsilon = epsilon, i = i, Rmid=self.Rmidn,
                             G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self)
             self.plotter.update_plots(self.storage, block=False)
 
             qlast = qnow
             qnow = qnext
+            rnow = rnext
         self.plotter.update_plots(self.storage, block=True)
 
 if __name__ == "__main__":
