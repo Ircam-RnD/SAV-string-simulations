@@ -1,6 +1,6 @@
 import numpy as np
-from Model import Model
-from SAVSolver import SAVSolver
+from model import Model
+from sav_solver import SAVSolver
 
 
 DEFAULT_STRING_PARAMS = {
@@ -37,7 +37,10 @@ class FD_string_model(Model):
         self.sr = sr
 
         # Get discretization step from stability condition
-        self.h_stability()
+        # self.h_stability()
+        self.N = 10
+        self.h = 1
+        self.In = np.ones(self.N)
         
         # Initialize some storage for d2xq and d4xq
         self.dxq = np.zeros(self.N + 1)
@@ -97,11 +100,11 @@ class FD_string_model(Model):
         self.In = np.ones(self.N)
 
     def build_matrices(self):
-        self.J0 = self.In / self.h
-        self.M = self.In * self.rhol / self.h
+        self.J0 = self.In #/ self.h
+        self.M = self.In #* self.rhol / self.h
 
     def Rmid(self, q):
-        return self.In * 2 * self.rhol * self.eta_0 / self.h
+        return self.In #* 2 * self.rhol * self.eta_0 / self.h
     
     def d2xq_op(self, q):
         self.d2xq = -2 *q
@@ -120,12 +123,12 @@ class FD_string_model(Model):
     def K_op(self, q):
         self.d2xq = self.d2xq_op(q)
         self.d4xq = self.d4xq_op(self.d2xq)
-        return - self.h * self.T * self.d2xq + self.h * self.E * self.I * self.d4xq
+        return q #- self.h * self.T * self.d2xq + self.h * self.E * self.I * self.d4xq
     
-    def Rsv_op(self, p):
+    def Rsv_op(self, v):
         # Well in fact its dxp in this case
-        self.d2xq = self.d2xq_op(p)
-        return - 2 * self.rhol * self.eta_1 / self.h * self.d2xq
+        self.d2xq = self.d2xq_op(v)
+        return np.zeros(self.N) #- 2 * self.rhol / self.h * self.eta_1 * self.d2xq
 
     def G(self, q):
         return np.zeros((self.N, self.Nu))
@@ -188,8 +191,9 @@ class FD_string_model(Model):
                 return (self.Enl(q), self.Fnl(q))
 
 if __name__ == "__main__":
-    sr = 44100
-    model = FD_string_model(sr)
+    sr = 100
+    string_params = {"NL_type": "linear"}
+    model = FD_string_model(sr, NL_type = "linear", eta_0 = 1, eta_1 = 0)
     print("N=", model.N)
     model.print_perceptual_params()
     solver = SAVSolver(model, sr = sr)
@@ -199,4 +203,4 @@ if __name__ == "__main__":
     u0 = np.zeros(model.N)
     def u_func(t):
         return np.zeros(model.Nu)
-    solver.integrate(q0, u0, u_func, 1, plot=model.N//2, ConstantRmid=True)
+    solver.integrate(q0, u0, u_func, duration = 1, ConstantRmid=True, plotter_config={})

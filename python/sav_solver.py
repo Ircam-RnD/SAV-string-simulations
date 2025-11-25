@@ -8,9 +8,14 @@ from plotter import Plotter, DEFAULT_PLOTTER_CONFIG
 class SAVSolver():
     """General SAV solver using same notations than in the JAES paper.
     """
-    def __init__(self,model, sr = 44100, lambda0 = 0):
+    def __init__(self, model, sr = 44100, lambda0 = 0):
         ### System definition ###
         self.model = model
+        print(self.model.J0)
+        print(self.model.M)
+        print(self.model.Rmid(np.zeros(self.model.N)))
+        print(self.model.Rsv_op(np.zeros(self.model.N)))
+        print(self.model.K_op(np.ones(self.model.N)))
 
         ### Numerical parameters ###
         # Sampling
@@ -22,7 +27,7 @@ class SAVSolver():
         # Control parameter
         self.lamba0 = lambda0
         # Numerical epsilon
-        self.model.Num_eps = 1e-16
+        self.Num_eps = 1e-16
 
         ### Some vector initialization ###
         self.Gn = np.zeros(self.model.N)
@@ -53,9 +58,9 @@ class SAVSolver():
             raise Exception(f"M must have {self.model.N} elements but has shape {self.model.M.shape}")
         if (self.model.M.shape != self.model.J0.shape):
             raise Exception(f"M must have {self.model.N} elements but has shape {self.model.M.shape}")
-        self.model.Rmidn = self.model.Rmid(x)
-        if (self.model.Rmidn.shape != self.model.J0.shape):
-            raise Exception(f"Rmidn must have {self.model.N} elements but has shape {self.model.Rmidn.shape}")
+        self.Rmidn = self.model.Rmid(x)
+        if (self.Rmidn.shape != self.model.J0.shape):
+            raise Exception(f"Rmidn must have {self.model.N} elements but has shape {self.Rmidn.shape}")
         try:
             Kq = self.model.K_op(x)
         except:
@@ -297,7 +302,7 @@ class SAVSolver():
             vector: g_std(q)
         """
         Enl, Fnl = self.model.EandFnl(q)
-        return self.model.J0 * Fnl / (np.sqrt(2 * Enl + self.C0 + self.model.Num_eps))
+        return self.model.J0 * Fnl / (np.sqrt(2 * Enl + self.C0 + self.Num_eps))
     
     def g_mod(self, q, p, r):
         """Returns the modification of g term to include 
@@ -312,7 +317,7 @@ class SAVSolver():
             vector: g_mod(q,p, r)
         """
         self.epsilon = r - np.sqrt(2 * self.model.Enl(q) + self.C0)
-        return - self.lamba0 * self.epsilon * self.model.M * np.sign(p) / (np.abs(p) + self.model.Num_eps)
+        return - self.lamba0 * self.epsilon * self.model.M * np.sign(p) / (np.abs(p) + self.Num_eps)
 
     ### Time stepping and integration ###
 
@@ -340,13 +345,13 @@ class SAVSolver():
         # Compute Rmid and G
         self.Gn = self.model.G(qnow)
         if not ConstantRmid:
-            self.model.Rmidn = self.model.Rmid(qnow)
+            self.Rmidn = self.model.Rmid(qnow)
             # Get qnext q^{n+3/2} using Shermann-Morrison
-            self.A0_inv_n = self.A0_inv(self.model.Rmidn)
+            self.A0_inv_n = self.A0_inv(self.Rmidn)
 
         den = (4 + self.gn.dot(self.A0_inv_n * self.gn)) # eq 19g
 
-        self.RHSn = self.B_op(qnow) + self.C_op(qlast, self.gn, self.model.Rmidn) - self.gn * rn + self.Gn @ unow # eq 19b
+        self.RHSn = self.B_op(qnow) + self.C_op(qlast, self.gn, self.Rmidn) - self.gn * rn + self.Gn @ unow # eq 19b
         
         qnext = self.model.J0 * self.A0_inv_n * self.RHSn \
             - self.model.J0 * self.A0_inv_n * self.gn / den * self.gn.dot(self.A0_inv_n * self.RHSn) # 19b+19g
@@ -384,8 +389,8 @@ class SAVSolver():
 
         if ConstantRmid:
             # Rmid vector is evaluated once at the begining of the simulation in this case
-            self.model.Rmidn = self.model.Rmid(q0)
-            self.A0_inv_n = self.A0_inv(self.model.Rmidn)
+            self.Rmidn = self.model.Rmid(q0)
+            self.A0_inv_n = self.A0_inv(self.Rmidn)
 
         ### Main loop ###
         for i in range(self.model.Nt ):
@@ -403,11 +408,11 @@ class SAVSolver():
 
 if __name__ == "__main__":
     model = Model(10)
-    solver = SAVSolver(model, sr = 1000)
+    solver = SAVSolver(model, sr = 100)
     solver.check_sizes()
-    q0 = np.ones(model.N)
+    q0 = np.zeros(model.N)
     u0 = np.zeros(model.N)
     def u_func(t):
-        return np.zeros(model.Nu)
-    solver.integrate(q0, u0, u_func, 10)
+        return np.ones(model.Nu)
+    solver.integrate(q0, u0, u_func, 100)
 
