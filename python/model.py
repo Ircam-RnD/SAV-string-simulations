@@ -25,3 +25,6 @@ class Model():
         # in some cases it is then computationally interesting 
         # to compute both in the same function.
         self.EandFnl = lambda q: (self.Enl(q), self.Fnl(q))
+
+    def setting(self):
+        return {"Name": self.__class__.__name__, "N": self.N} 

@@ -20,7 +20,7 @@ class SAVSolver():
         # Shifting constant
         self. C0 = 0
         # Control parameter
-        self.lamba0 = lambda0
+        self.lambda0 = lambda0
         # Numerical epsilon
         self.Num_eps = 1e-16
 
@@ -37,6 +37,13 @@ class SAVSolver():
 
         ### Check dimensions ###
         self.check_sizes()
+
+    def setting(self):
+        """Returns a dictionnary with solver settings.
+        Returns:
+            (dict): solver setings
+        """
+        return {"sr": self.sr, "dt": self.dt, "num_eps": self.Num_eps, "C0": self.C0, "lambda0": self.lambda0}
 
     def check_sizes(self):
         """Checks that the underlying model has coherent matrices and operators
@@ -324,7 +331,7 @@ class SAVSolver():
             vector: g_mod(q,p, r)
         """
         self.epsilon = r - np.sqrt(2 * self.model.Enl(q) + self.C0)
-        return - self.lamba0 * self.epsilon * self.model.M * np.sign(p) / (np.abs(p) + self.Num_eps)
+        return - self.lambda0 * self.epsilon * self.model.M * np.sign(p) / (np.abs(p) + self.Num_eps)
 
     ### Time stepping and integration ###
 
@@ -385,7 +392,7 @@ class SAVSolver():
         self.t = np.arange(self.model.Nt) * self.dt
 
         self.storage = ResultsStorage(**storage_config)
-        self.storage.reserve(self.t, self.model)
+        self.storage.reserve(self.t, self.model, self)
         self.plotter = Plotter(**plotter_config)
         self.plotter.init_plots()
 

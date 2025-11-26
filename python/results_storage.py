@@ -29,9 +29,16 @@ class ResultsStorage():
         self.__dict__.update(DEFAULT_STORAGE_CONFIG)
         self.__dict__.update(kwargs)
 
-    def reserve(self, t, model):
+    def reserve(self, t, model, solver):
         self.t = t
         self.Nt = len(t)
+
+        if self.SolverSetting:
+            self.solver_dict = solver.setting()
+        
+        if self.ModelSetting:
+            self.model_dict = model.setting()
+            print(self.model_dict)
 
         # Force energy to be computed if power is needed
         if self.Power:

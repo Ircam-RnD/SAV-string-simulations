@@ -30,8 +30,9 @@ class FD_string_model(Model):
     def __init__(self, sr = 44100, **kwargs):
         # Copy string parameters first from Default params
         # and replace parameters given as kwargs
-        self.__dict__.update(DEFAULT_STRING_PARAMS)
-        self.__dict__.update(kwargs)
+        self.params = DEFAULT_STRING_PARAMS
+        self.params.update(**kwargs)
+        self.__dict__.update(self.params)
         self.fill_intermediary_physical_params()
 
         # Samplerate, used for choosing the spatial discretization
@@ -61,6 +62,9 @@ class FD_string_model(Model):
         print(r"$f_0 = $" + f"{self.f0}")
         print(r"$T_{60}(0) = $" + f"{self.T60(0)}")
         print(r"$T_{60}(1000) = $" + f"{self.T60(2 * np.pi * 1000)}")
+    
+    def setting(self):
+        return {"Name": self.__class__.__name__, "N": self.N, **self.params} 
 
     def fill_intermediary_physical_params(self):
         self.A = np.pi*self.Ra**2
