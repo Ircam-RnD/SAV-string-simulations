@@ -107,6 +107,11 @@ class SAVSolver():
         if (Fnl_val.shape != J0x.shape):
             raise Exception(f"Fnl(q) evaluated using EandFnl(q) must have {self.model.N} elements but has shape {Fnl_val.shape}")
         
+        try:
+            self.model.setting()
+        except:
+            print(f"Model must have a setting() function")
+
     ### Energy related functions ### 
 
     def Ek_tilde(self, p):
