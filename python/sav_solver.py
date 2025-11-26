@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from time import sleep
 from model import Model
 from results_storage import ResultsStorage, DEFAULT_STORAGE_CONFIG
 from plotter import Plotter, DEFAULT_PLOTTER_CONFIG
