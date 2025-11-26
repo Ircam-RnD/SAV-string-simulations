@@ -40,3 +40,4 @@ tqdm==4.67.1
 typing_extensions==4.15.0
 urllib3==2.5.0
 webcolors==24.11.1
+h5py==3.9.0

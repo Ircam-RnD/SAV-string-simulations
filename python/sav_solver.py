@@ -434,4 +434,5 @@ if __name__ == "__main__":
     def u_func(t):
         return np.zeros(model.Nu)
     solver.integrate(q0, u0, u_func, 100)
+    solver.storage.write("results/test.h5")
 

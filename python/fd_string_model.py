@@ -208,3 +208,4 @@ if __name__ == "__main__":
     def u_func(t):
         return np.zeros(model.Nu)
     solver.integrate(q0, u0, u_func, duration = 1, ConstantRmid=True, plotter_config=NO_PLOTTER_CONFIG, storage_config=STATE_STORAGE_CONFIG)
+    solver.storage.write("results/test_string.h5")
