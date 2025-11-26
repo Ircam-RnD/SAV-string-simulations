@@ -8,7 +8,7 @@
     "n_srs" : 6,
     "lambda0s" : [0, 10000],
     "convmode" : "time",
-    "duration" : 0.02,
+    "duration" : 0.05,
     "alphaCFL" : 0.9,
     "resultfolder": "./results/contact_conv_gaussian_time",
     "mode": "contact",
@@ -21,7 +21,7 @@
         "s_0": 0,
         "s_1": 0,
         "kc": 1e9,
-        "qc": -1e-3,
+        "qc": -1e-2,
         "alpha": 1.3
     }
 }
