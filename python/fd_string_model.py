@@ -41,7 +41,25 @@ class FD_string_model(Model):
 
         # Get discretization step from stability condition
         self.h_stability()
-        self.In = np.ones(self.N)
+        
+        # Initialize some storage for d2xq and d4xq
+        self.dxq = np.zeros(self.N + 1)
+        self.d2xq = np.zeros(self.N)
+        self.d4xq = np.zeros(self.N)
+        # Compute matrices
+        self.build_matrices()
+
+        # One input 
+        self.Nu = 1
+
+        # Some constant coefficient multipliers
+        self.EnlGeomConst = (self.E * self.A - self.T)/8 * self.h
+        self.EnlKCConst = (self.E * self.A)/(8*self.l0) * self.h**2
+
+    def recompute_stability(self, sr, kappa = 0.9):
+        self.sr = sr
+        # Get discretization step from stability condition
+        self.h_stability(kappa)
         
         # Initialize some storage for d2xq and d4xq
         self.dxq = np.zeros(self.N + 1)
@@ -62,6 +80,23 @@ class FD_string_model(Model):
         print(r"$f_0 = $" + f"{self.f0}")
         print(r"$T_{60}(0) = $" + f"{self.T60(0)}")
         print(r"$T_{60}(1000) = $" + f"{self.T60(2 * np.pi * 1000)}")
+
+    def hann_init(self, center, width, amp):
+        x0 = np.zeros(self.N)
+        for i in range(self.N-1):
+            xcur = (i+1) * h
+            dist = np.abs(xcur - center)
+            if dist < width:
+                x0[i] = amp * 0.5 * (1 + np.cos(np.pi * dist / width))
+        return x0
+    
+    def gauss_init(self, center, width, amp):
+        x0 = np.zeros(N)
+        for i in range(N):
+            xcur = (i+1) * h
+            dist = np.abs(xcur - center)
+            x0[i] = amp * np.exp(-dist **2 / (2 * width**2))
+        return x0
     
     def setting(self):
         return {"Name": self.__class__.__name__, "N": self.N, **self.params} 
@@ -89,11 +124,11 @@ class FD_string_model(Model):
         print(r"$T_{60}(0) = $" + f"{self.T60(0)}")
         print(r"$T_{60}(1000) = $" + f"{self.T60(2 * np.pi * 1000)}")
         
-    def h_stability(self, odd = True, alpha = 0.9):
+    def h_stability(self, odd = True, kappa = 0.9):
         dt = 1/self.sr
         gamma = dt**2 * self.T + 4*  dt * self.rhol * self.eta_1
         self.h = np.sqrt((gamma + np.sqrt(gamma**2 + 16 * self.rhol * self.E * self.I * dt**2))/ (2 * self.rhol))
-        self.N = int(np.floor(alpha * self.l0 / (self.h)))
+        self.N = int(np.floor(kappa * self.l0 / (self.h)))
         if odd:
             if self.N%2 == 0:
                 self.N-=1
@@ -101,7 +136,6 @@ class FD_string_model(Model):
             if self.N%2 != 0:
                 self.N-=1
         self.h = self.l0 / (self.N)
-        self.In = np.ones(self.N)
 
     def build_matrices(self):
         self.J0 = 1 / self.h

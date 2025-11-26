@@ -41,7 +41,7 @@ class SAVSolver():
         Returns:
             (dict): solver setings
         """
-        return {"sr": self.sr, "dt": self.dt, "num_eps": self.Num_eps, "C0": self.C0, "lambda0": self.lambda0}
+        return {"sr": float(self.sr), "dt": float(self.dt), "num_eps": self.Num_eps, "C0": float(self.C0), "lambda0": float(self.lambda0)}
 
     def check_sizes(self):
         """Checks that the underlying model has coherent matrices and operators
