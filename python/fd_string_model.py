@@ -100,11 +100,11 @@ class FD_string_model(Model):
         self.In = np.ones(self.N)
 
     def build_matrices(self):
-        self.J0 = self.In / self.h
-        self.M = self.In * self.rhol / self.h
+        self.J0 = 1 / self.h
+        self.M = 1 * self.rhol / self.h
 
     def Rmid(self, q):
-        return self.In * 2 * self.rhol * self.eta_0 / self.h
+        return 2 * self.rhol * self.eta_0 / self.h
     
     def d2xq_op(self, q):
         self.d2xq = -2 *q

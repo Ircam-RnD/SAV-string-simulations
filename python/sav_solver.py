@@ -46,24 +46,36 @@ class SAVSolver():
         # system are of the right dimensions
         x = np.zeros(self.model.N)
         u = np.zeros((self.model.N, self.model.Nu))
-
-        if (self.model.J0.shape[0] != self.model.N or self.model.J0.ndim != 1):
-            raise Exception(f"J0 must have {self.model.N} elements but has shape {self.model.J0.shape}")
-        if (self.model.M.shape != self.model.J0.shape):
-            raise Exception(f"M must have {self.model.N} elements but has shape {self.model.M.shape}")
-        if (self.model.M.shape != self.model.J0.shape):
-            raise Exception(f"M must have {self.model.N} elements but has shape {self.model.M.shape}")
-        self.Rmidn = self.model.Rmid(x)
-        if (self.Rmidn.shape != self.model.J0.shape):
-            raise Exception(f"Rmidn must have {self.model.N} elements but has shape {self.Rmidn.shape}")
+        J0x = np.zeros(self.model.N)
+        try:
+            J0x = self.model.J0 * x
+            if (J0x.shape[0] != self.model.N or J0x.ndim != 1):
+                raise Exception(f"J0 x must return a vector of length {self.model.N} but has shape {J0x.shape}")
+        except:
+            raise Exception(f"J0 cannot be applied to a vector of length {self.model.N}")
+        
+        try:
+            Mx = self.model.M * x
+            if (Mx.shape != J0x.shape):
+                raise Exception(f"M x must return a vector of length {self.model.N} but has shape {Mx.shape}")
+        except:
+            raise Exception(f"M cannot be applied to a vector of length {self.model.N}")
+        
+        try:
+            Rmidx = self.model.Rmid(x) * x
+            if (Rmidx.shape != J0x.shape):
+                raise Exception(f"Rmid(x) x must return a vector of length {self.model.N} but has shape {Rmidx.shape}")
+        except:
+            raise Exception(f"Rmid(x) cannot be computed, or applied to a vector of length {self.model.N}")
+        
         try:
             Kq = self.model.K_op(x)
         except:
             raise Exception(f"K_op function not working with input vector of size {self.model.N}")
-        if (Kq.shape != self.model.J0.shape):
+        if (Kq.shape != J0x.shape):
             raise Exception(f"Kq must have {self.model.N} elements but has shape {Kq.shape}")
         Rsvq = self.model.Rsv_op(x)
-        if (Rsvq.shape != self.model.J0.shape):
+        if (Rsvq.shape != J0x.shape):
             raise Exception(f"Rsvq must have {self.model.N} elements but has shape {Rsvq.shape}")
         try: 
             self.Gn = self.model.G(u)
@@ -79,13 +91,13 @@ class SAVSolver():
             Fnl_val = self.model.Fnl(x)
         except:
             raise Exception(f"Fnl function not working with input vector of size {self.model.N}")
-        if (Fnl_val.shape[0] != self.model.N or self.model.J0.ndim != 1):
+        if (Fnl_val.shape != J0x.shape):
             raise Exception(f"Fnl(q) must have {self.model.N} elements but has shape {Fnl_val.shape}")
         try:
             Enl_val, Fnl_val = self.model.EandFnl(x)
         except:
             raise Exception(f"EandFnl function not working with input vector of size {self.model.N}")
-        if (Fnl_val.shape[0] != self.model.N or self.model.J0.ndim != 1):
+        if (Fnl_val.shape != J0x.shape):
             raise Exception(f"Fnl(q) evaluated using EandFnl(q) must have {self.model.N} elements but has shape {Fnl_val.shape}")
         
     ### Energy related functions ### 
