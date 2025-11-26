@@ -32,7 +32,7 @@ class Plotter():
         self.__dict__.update(DEFAULT_PLOTTER_CONFIG)
         self.__dict__.update(kwargs)
 
-        # Turns on intercative matplotlib mode if asked
+        # Turns on interaative matplotlib mode if asked
         if self.interactive:
             plt.ion()
 
