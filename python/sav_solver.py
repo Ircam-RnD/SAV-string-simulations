@@ -22,7 +22,7 @@ class SAVSolver():
         # Control parameter
         self.lambda0 = lambda0
         # Numerical epsilon
-        self.Num_eps = 1e-16
+        self.Num_eps = 1e-14
 
         ### Some vector initialization ###
         self.Gn = np.zeros(self.model.N)
@@ -336,7 +336,7 @@ class SAVSolver():
             vector: g_mod(q,p, r)
         """
         self.epsilon = r - np.sqrt(2 * self.model.Enl(q) + self.C0)
-        return - self.lambda0 * self.epsilon * self.model.M * np.sign(p) / (np.abs(p) + self.Num_eps)
+        return - self.lambda0 * self.epsilon * self.model.M * np.sign(p) / (np.sum(np.abs(p)) + self.Num_eps)
 
     ### Time stepping and integration ###
 

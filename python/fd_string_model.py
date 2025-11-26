@@ -196,16 +196,15 @@ class FD_string_model(Model):
 
 if __name__ == "__main__":
     sr = 44100
-    string_params = {"NL_type": "linear"}
-    model = FD_string_model(sr, NL_type = "linear")
+    model = FD_string_model(sr, NL_type = "geom")
     print("N=", model.N)
     model.print_perceptual_params()
-    solver = SAVSolver(model, sr = sr)
+    solver = SAVSolver(model, sr = sr, lambda0=1000)
     solver.check_sizes()
     x = np.linspace(0, 1, model.N+2)
-    q0 = np.sin(np.pi*x)[1:-1] * 1
+    q0 = np.sin(np.pi*x)[1:-1] * 1e-2
     u0 = np.zeros(model.N)
     def u_func(t):
         return np.zeros(model.Nu)
-    solver.integrate(q0, u0, u_func, duration = 1, ConstantRmid=True, plotter_config=NO_PLOTTER_CONFIG, storage_config=STATE_STORAGE_CONFIG)
+    solver.integrate(q0, u0, u_func, duration = 1, ConstantRmid=True, plotter_config={"q_idx": np.array([model.N//2]), "p_idx": np.array([model.N//2])}, storage_config={})
     solver.storage.write("results/test_string.h5")
