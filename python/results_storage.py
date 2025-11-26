@@ -11,6 +11,17 @@ DEFAULT_STORAGE_CONFIG = {
     "ModelSetting": True
 }
 
+STATE_STORAGE_CONFIG = {
+    "Energy" : False,
+    "Power" :False,
+    "Drift" : True,
+    "q_idx": -1,
+    "p_idx": -1,
+    "SAV": True,
+    "SolverSetting": True,
+    "ModelSetting": True
+}
+
 class ResultsStorage():
     """General helper class to store simulation results from SAVSolver simulations.
     """
@@ -18,7 +29,7 @@ class ResultsStorage():
         self.__dict__.update(DEFAULT_STORAGE_CONFIG)
         self.__dict__.update(kwargs)
 
-    def reserve(self, t):
+    def reserve(self, t, model):
         self.t = t
         self.Nt = len(t)
 
@@ -43,10 +54,14 @@ class ResultsStorage():
         if self.Drift:
             self.epsilon = np.zeros(self.Nt)
 
-        if self.q_idx != None:
+        if self.q_idx == -1:
+            self.q_idx = np.arange(model.N)
+        if self.q_idx is not None:
             self.q = np.zeros((self.Nt, len(self.q_idx)))
 
-        if self.q_idx != None:
+        if self.p_idx == -1:
+            self.p_idx = np.arange(model.N)
+        if self.p_idx is not None:
             self.p = np.zeros((self.Nt, len(self.p_idx)))
 
         if self.SAV:
@@ -74,9 +89,10 @@ class ResultsStorage():
         if self.Power:
             if i> 0:
                 self.Pstored[i] = solver.P_stored(self.Etot[i-1], self.Etot[i])
-                self.Pdiss[i] = solver.P_diss(self.p[i-1], self.p[i], Rmid)
-                self.Pext[i] = solver.P_ext(self.p[i-1], self.p[i], G, u)
+                self.Pdiss[i] = solver.P_diss(self.plast, p, Rmid)
+                self.Pext[i] = solver.P_ext(self.plast, p, G, u)
                 self.Ptot[i] = self.Pstored[i] + self.Pdiss[i] + self.Pext[i]
+            self.plast = p
 
         # Keep track of the advance for Plotter function
         self.i = i+1

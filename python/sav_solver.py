@@ -11,11 +11,6 @@ class SAVSolver():
     def __init__(self, model, sr = 44100, lambda0 = 0):
         ### System definition ###
         self.model = model
-        print(self.model.J0)
-        print(self.model.M)
-        print(self.model.Rmid(np.zeros(self.model.N)))
-        print(self.model.Rsv_op(np.zeros(self.model.N)))
-        print(self.model.K_op(np.ones(self.model.N)))
 
         ### Numerical parameters ###
         # Sampling
@@ -378,7 +373,7 @@ class SAVSolver():
         self.t = np.arange(self.model.Nt) * self.dt
 
         self.storage = ResultsStorage(**storage_config)
-        self.storage.reserve(self.t)
+        self.storage.reserve(self.t, self.model)
         self.plotter = Plotter(**plotter_config)
         self.plotter.init_plots()
 
@@ -410,9 +405,9 @@ if __name__ == "__main__":
     model = Model(10)
     solver = SAVSolver(model, sr = 100)
     solver.check_sizes()
-    q0 = np.zeros(model.N)
+    q0 = np.ones(model.N)
     u0 = np.zeros(model.N)
     def u_func(t):
-        return np.ones(model.Nu)
+        return np.zeros(model.Nu)
     solver.integrate(q0, u0, u_func, 100)
 

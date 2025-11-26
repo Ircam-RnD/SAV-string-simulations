@@ -13,6 +13,18 @@ DEFAULT_PLOTTER_CONFIG = {
     "delay": 500
 }
 
+NO_PLOTTER_CONFIG = {
+    "Energy" : False,
+    "Power" :False,
+    "Drift" : False,
+    "q_idx": None,
+    "p_idx": None,
+    "SAV": False,
+    "interactive": False,
+    "stride": 10,
+    "delay": 500
+}
+
 class Plotter():
     """General helper class to plot data from SAVSolver simulations.
     """
