@@ -4,7 +4,7 @@ from os.path import exists, join
 import json
 import shutil
 
-config_fname = "config_contact.json"
+config_fname = "config.json"
 # Read config file
 with open(config_fname) as f:
     config = json.load(f)

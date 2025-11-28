@@ -44,7 +44,6 @@ class ResultsStorage():
         
         if self.ModelSetting:
             self.model_dict = model.setting()
-            print(self.model_dict)
 
         # Force energy to be computed if power is needed
         if self.Power:

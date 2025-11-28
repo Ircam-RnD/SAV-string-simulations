@@ -80,26 +80,9 @@ class FD_string_model(Model):
         print(r"$f_0 = $" + f"{self.f0}")
         print(r"$T_{60}(0) = $" + f"{self.T60(0)}")
         print(r"$T_{60}(1000) = $" + f"{self.T60(2 * np.pi * 1000)}")
-
-    def hann_init(self, center, width, amp):
-        x0 = np.zeros(self.N)
-        for i in range(self.N-1):
-            xcur = (i+1) * h
-            dist = np.abs(xcur - center)
-            if dist < width:
-                x0[i] = amp * 0.5 * (1 + np.cos(np.pi * dist / width))
-        return x0
-    
-    def gauss_init(self, center, width, amp):
-        x0 = np.zeros(N)
-        for i in range(N):
-            xcur = (i+1) * h
-            dist = np.abs(xcur - center)
-            x0[i] = amp * np.exp(-dist **2 / (2 * width**2))
-        return x0
     
     def setting(self):
-        return {"Name": self.__class__.__name__, "N": self.N, **self.params} 
+        return {"Name": self.__class__.__name__, "N": self.N, **self.params, "h": self.h} 
 
     def fill_intermediary_physical_params(self):
         self.A = np.pi*self.Ra**2
@@ -135,7 +118,7 @@ class FD_string_model(Model):
         else:
             if self.N%2 != 0:
                 self.N-=1
-        self.h = self.l0 / (self.N)
+        self.h = self.l0 / (self.N + 1)
 
     def build_matrices(self):
         self.J0 = 1 / self.h
