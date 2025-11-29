@@ -7,7 +7,7 @@ import numpy as np
 from helper_plots import set_size
 
 #%% Settings
-result_folder = "results/convergence1"
+result_folder = "results/convergence2"
 
 with h5py.File(join(result_folder, "settings.h5"), "r") as f:
     sr0 = json.loads(f.attrs["sr0"])
@@ -34,11 +34,9 @@ for i, sr in enumerate(srs):
             q = f["q"][...]
             model_setting = json.loads(f.attrs['model_dict'])
             q = q[::int(sr / sr0), 0]
-            print(q.shape)
             errors[i, j] = compute_error(q, q_ref)
             hs[i] = model_setting["h"]
-    
-print(errors)
+
 # %% Figure
 fig = plt.figure(figsize = set_size("DAFx", fraction=0.5, height_ratio=0.8))
 ax = plt.gca()

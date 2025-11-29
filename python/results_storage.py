@@ -79,11 +79,14 @@ class ResultsStorage():
         if self.SAV:
             self.r = np.zeros(self.Nt)
 
-    def store(self, q, p, r, epsilon, i, Rmid, G, u, solver):
+    def store(self, q, p, r, epsilon, i, Rmid, G, u, solver, mode="sav"):
         if self.Energy:
             self.Ekin[i] = solver.Ek_tilde(p)
             self.Eplin[i] = solver.Ep_lin(q)
-            self.Epnl[i] = solver.Ep_nl_sav(r)
+            if mode=="sav":
+                self.Epnl[i] = solver.Ep_nl_sav(r)
+            else:
+                self.Epnl[i] = solver.Ep_nl(q)
             self.Etot[i] = self.Ekin[i] + self.Eplin[i] + self.Epnl[i]
 
         if self.Drift:
@@ -95,7 +98,7 @@ class ResultsStorage():
         if not (self.p_idx is None):
             self.p[i] = p[self.p_idx]
 
-        if self.SAV:
+        if self.SAV and mode=="sav":
             self.r[i] = r
 
         if self.Power:

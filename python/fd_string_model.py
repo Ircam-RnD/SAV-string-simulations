@@ -3,7 +3,7 @@ from model import Model
 from sav_solver import SAVSolver
 from results_storage import STATE_STORAGE_CONFIG
 from plotter import NO_PLOTTER_CONFIG
-
+from scipy.io.wavfile import write
 
 DEFAULT_STRING_PARAMS = {
     "l0": 1.1,
@@ -162,6 +162,13 @@ class FD_string_model(Model):
                 self.dxq[1:] -= q
                 self.dxq /= self.h 
                 return self.EnlGeomConst * np.sum((self.dxq)**4)
+            case "sqrt":
+                self.dxq[-1] = 0
+                self.dxq[:-1] = q
+                self.dxq[1:] -= q
+                self.dxq /= self.h 
+                inter0 = np.sqrt(1 + self.dxq * self.dxq)
+                return (self.E * self.A - self.T) * self.h / 2 * (inter0 - 1).dot(inter0 -1)
             case "KC":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
@@ -181,6 +188,14 @@ class FD_string_model(Model):
                 dxq3 = self.dxq**3
                 Dmindxq3 = -1/self.h * (dxq3[1:] - dxq3[:-1])
                 return 4 * self.EnlGeomConst * Dmindxq3
+            case "sqrt":
+                self.dxq[-1] = 0
+                self.dxq[:-1] = q
+                self.dxq[1:] -= q
+                self.dxq /= self.h 
+                inter0 = np.sqrt(1 + self.dxq * self.dxq)
+                inter1 = (self.E * self.A - self.T) * (self.dxq * (inter0- 1) / inter0)
+                return -1 * (inter1[1:] - inter1[:-1])
             case "KC":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
@@ -201,6 +216,15 @@ class FD_string_model(Model):
                 Dmindxq3 = -1/self.h * (dxq3[1:] - dxq3[:-1])
                 return (self.EnlGeomConst * np.sum((self.dxq)**4),
                         4 * self.EnlGeomConst * Dmindxq3)
+            case "sqrt":
+                self.dxq[-1] = 0
+                self.dxq[:-1] = q
+                self.dxq[1:] -= q
+                self.dxq /= self.h 
+                inter0 = np.sqrt(1 + self.dxq * self.dxq)
+                inter1 = (self.E * self.A - self.T) * (self.dxq * (inter0- 1) / inter0)
+                return ((self.E * self.A - self.T) * self.h / 2 * (inter0 - 1).dot(inter0 -1),
+                        -1 * (inter1[1:] - inter1[:-1]))
             case "KC":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
@@ -213,15 +237,20 @@ class FD_string_model(Model):
 
 if __name__ == "__main__":
     sr = 44100
-    model = FD_string_model(sr, NL_type = "geom")
+    model = FD_string_model(sr, NL_type = "sqrt")
     print("N=", model.N)
     model.print_perceptual_params()
     solver = SAVSolver(model, sr = sr, lambda0=1000)
     solver.check_sizes()
     x = np.linspace(0, 1, model.N+2)
-    q0 = np.sin(np.pi*x)[1:-1] * 1e-2
+    q0 = np.sin(np.pi*x)[1:-1] * 8e-3
     u0 = np.zeros(model.N)
     def u_func(t):
         return np.zeros(model.Nu)
-    solver.integrate(q0, u0, u_func, duration = 1, ConstantRmid=True, plotter_config={"q_idx": np.array([model.N//2]), "p_idx": np.array([model.N//2])}, storage_config={})
+    solver.integrate(q0, u0, u_func, duration = 1, ConstantRmid=True,
+                     plotter_config={"q_idx": np.array([model.N//2]), "p_idx": np.array([model.N//2]), "delay": 5000}, storage_config={})
     solver.storage.write("results/test_string.h5")
+
+    qmid = solver.storage.q[:, model.N//2]
+    scaled = np.int16(qmid / np.max(np.abs(qmid)) * 32767)
+    write("coucou.wav", sr, scaled)

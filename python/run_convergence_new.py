@@ -23,14 +23,14 @@ A0 = 8e-3 # Initial condition amplitude
 duration = 0.05
 
 # Solver
-sr0 = 20000
-N_srs = 8
+sr0 = 44100
+N_srs = 6
 sr_ref_OF = 8
 kappa = 0.9
 
 lambda0s = [0, 1000]
 
-result_folder = "results/convergence1"
+result_folder = "results/convergence2"
 
 
 
@@ -91,6 +91,6 @@ q0 = np.sin(np.pi * np.arange(model.N+2) / (model.N + 1))[1:-1] * A0
 u0 = np.zeros(model.N)
 
 solver = SAVSolver(model, float(sr_ref), float(0))
-solver.integrate(q0, u0, u_func, duration, ConstantRmid=True, plotter_config=NO_PLOTTER_CONFIG, storage_config=storage)
+solver.integrate_verlet(q0, u0, u_func, duration, ConstantRmid=True, plotter_config=NO_PLOTTER_CONFIG, storage_config=storage)
 solver.storage.write(os.path.join(result_folder, f"ref.h5"))
 print(f"Finished computing ref")

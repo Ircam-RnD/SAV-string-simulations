@@ -307,6 +307,24 @@ class SAVSolver():
                 - 0.25 * g * g.dot(q / self.model.J0)
                 - self.model.Rsv_op(q / self.model.J0) / self.dt
             )
+    
+    def C_op_Verlet(self, q, Rmid):
+        """Applies the C operator to the vector q^{n-1/2} for the Stormer-Verlet scheme
+
+        Args:
+            q (vector): generalized coordinates vector
+            Rmid (vector): diagonal dissipation matrix Rmid
+
+        Returns:
+            vector: C q
+        """
+        return - np.ones(self.model.N) * \
+            (
+                (self.model.M / self.dt2
+                - Rmid / (2 * self.dt)) 
+                * q / self.model.J0
+                - self.model.Rsv_op(q / self.model.J0) / self.dt
+            )
                                               
     def g(self, q):
         """Return the g vector computed from q as (eq 9b)
@@ -421,6 +439,82 @@ class SAVSolver():
             qlast = qnow
             qnow = qnext
             rnow = rnext
+        self.plotter.update_plots(self.storage, block=True)
+
+    def time_step_verlet(self, qlast, qnow, unow, ConstantRmid = False):
+        """Returns next state by using a standard Stormer-Verlet scheme
+
+        Args:
+            qlast (vector): generalized coordinates (q^{n-1/2})
+            qnow (vector): generalized coordinates (q^{n+1/2})
+            unow (vector): input
+            ConstantRmid (bool, optional): Specifies if Rmid needs to be recomputed,
+                which corresponds to cases where it is state dependent. Defaults to False.
+
+        Returns:
+            (vector, number): next state (q^{n+3/2}, r^{n+1})
+        """
+        # qlast correponds to q^{n-1/2} and qnow to
+        # q^{n+1/2}. rn corresponds to r^n. unow to u^{n+1/2}.
+        # First, compute g
+        pn = (qnow - qlast) * self.M_J0dt
+        qn = (qlast + qnow)/2
+
+        # Compute Rmid and G
+        self.Gn = self.model.G(qnow)
+        if not ConstantRmid:
+            self.Rmidn = self.model.Rmid(qnow)
+            # Get qnext q^{n+3/2} using Shermann-Morrison
+            self.A0_inv_n = self.A0_inv(self.Rmidn)
+
+        self.RHSn = self.B_op(qnow) + self.C_op_Verlet(qlast, self.Rmidn) + self.Gn @ unow - self.model.J0 * self.model.Fnl(qnow)
+        
+        qnext = self.model.J0 * self.A0_inv_n * self.RHSn
+        
+        return qnext, qn, pn
+
+    def integrate_verlet(self, q0, u0, u_func, duration, ConstantRmid = False,
+                         storage_config = DEFAULT_STORAGE_CONFIG, plotter_config = DEFAULT_PLOTTER_CONFIG):
+        """Integrates the dynamics using provided initial conditions, input function, 
+        and duration.
+
+        Args:
+            q0 (vector): Initial condition, generalized coordinates
+            u0 (vector): Initial condition, velocity u_0 = dot q(t=0)
+            u_func (function): input vector as a function of time
+            duration (number): simulation duration
+            plot (int, optional): Specifies which data to plot. Defaults to None.
+            ConstantRmid (bool, optional): Specifies if Rmid needs to be recomputed at each time step. Defaults to False.
+        """
+        ### Time vector and storage initialization ###
+        self.model.Nt = int(duration / self.dt)
+        self.t = np.arange(self.model.Nt) * self.dt
+
+        self.storage = ResultsStorage(**storage_config)
+        self.storage.reserve(self.t, self.model, self)
+        self.plotter = Plotter(**plotter_config)
+        self.plotter.init_plots()
+
+        ### State initialization ###
+        qlast = q0 - u0 * self.dt / 2
+        qnow = q0 + u0 * self.dt / 2
+
+        if ConstantRmid:
+            # Rmid vector is evaluated once at the begining of the simulation in this case
+            self.Rmidn = self.model.Rmid(q0)
+            self.A0_inv_n = self.A0_inv(self.Rmidn)
+
+        ### Main loop ###
+        for i in range(self.model.Nt ):
+            qnext, qn, pn = self.time_step_verlet(qlast, qnow, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
+            
+            self.storage.store(q = qn, p = pn, r= 0,
+                           epsilon = 0, i = i, Rmid=self.Rmidn,
+                            G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self, mode="verlet")
+            self.plotter.update_plots(self.storage, block=False)
+
+            qlast = qnow
+            qnow = qnext
         self.plotter.update_plots(self.storage, block=True)
 
 if __name__ == "__main__":
