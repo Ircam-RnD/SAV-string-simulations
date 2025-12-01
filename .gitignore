@@ -37,3 +37,4 @@ build/
 xcode/
 externals/
 .vscode/
+*.wav
