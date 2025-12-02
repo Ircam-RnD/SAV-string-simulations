@@ -39,3 +39,4 @@ externals/
 .vscode/
 .venv
 *.wav
+*.h5
