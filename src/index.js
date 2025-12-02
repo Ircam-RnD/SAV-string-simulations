@@ -10,6 +10,7 @@ await audioContext.audioWorklet.addModule('./src/StringProcessor.js');
 
 let impulseWidth = 1 / 1000;
 
+
 // Parameters
 let options = {};
 options.processorOptions = {};
