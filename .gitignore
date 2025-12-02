@@ -40,3 +40,4 @@ externals/
 .venv
 *.wav
 *.h5
+*.pdf
