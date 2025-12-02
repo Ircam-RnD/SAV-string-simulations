@@ -16,7 +16,7 @@ DEFAULT_STRING_PARAMS = {
     "kc": 1e9,
     "alpha": 1.3,
     "qc": - 5e-3,
-    "NL_type": "geom"
+    "NL_type": "GE4"
 }
 
 class FD_string_model(Model):
@@ -156,13 +156,13 @@ class FD_string_model(Model):
 
     def Enl(self, q):
         match self.NL_type:
-            case "geom":
+            case "GE4":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
                 self.dxq[1:] -= q
                 self.dxq /= self.h 
                 return self.EnlGeomConst * np.sum((self.dxq)**4)
-            case "sqrt":
+            case "GE":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
                 self.dxq[1:] -= q
@@ -180,7 +180,7 @@ class FD_string_model(Model):
 
     def Fnl(self, q):
         match self.NL_type:
-            case "geom":
+            case "GE4":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
                 self.dxq[1:] -= q
@@ -188,7 +188,7 @@ class FD_string_model(Model):
                 dxq3 = self.dxq**3
                 Dmindxq3 = -1/self.h * (dxq3[1:] - dxq3[:-1])
                 return 4 * self.EnlGeomConst * Dmindxq3
-            case "sqrt":
+            case "GE":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
                 self.dxq[1:] -= q
@@ -207,7 +207,7 @@ class FD_string_model(Model):
 
     def EandFnl(self, q):
         match self.NL_type:
-            case "geom":
+            case "GE4":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
                 self.dxq[1:] -= q
@@ -216,7 +216,7 @@ class FD_string_model(Model):
                 Dmindxq3 = -1/self.h * (dxq3[1:] - dxq3[:-1])
                 return (self.EnlGeomConst * np.sum((self.dxq)**4),
                         4 * self.EnlGeomConst * Dmindxq3)
-            case "sqrt":
+            case "GE":
                 self.dxq[-1] = 0
                 self.dxq[:-1] = q
                 self.dxq[1:] -= q
@@ -237,7 +237,7 @@ class FD_string_model(Model):
 
 if __name__ == "__main__":
     sr = 44100
-    model = FD_string_model(sr, NL_type = "sqrt")
+    model = FD_string_model(sr, NL_type = "GE")
     print("N=", model.N)
     model.print_perceptual_params()
     solver = SAVSolver(model, sr = sr, lambda0=1000)
@@ -253,4 +253,4 @@ if __name__ == "__main__":
 
     qmid = solver.storage.q[:, model.N//2]
     scaled = np.int16(qmid / np.max(np.abs(qmid)) * 32767)
-    write("coucou.wav", sr, scaled)
+    write("test_GE4.wav", sr, scaled)
