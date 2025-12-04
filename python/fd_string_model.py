@@ -16,7 +16,8 @@ DEFAULT_STRING_PARAMS = {
     "kc": 1e9,
     "alpha": 1.3,
     "qc": - 5e-3,
-    "NL_type": "GE4"
+    "NL_type": "GE4",
+    "expos": 0.5
 }
 
 class FD_string_model(Model):
@@ -59,7 +60,7 @@ class FD_string_model(Model):
     def recompute_stability(self, sr, kappa = 0.9):
         self.sr = sr
         # Get discretization step from stability condition
-        self.h_stability(kappa)
+        self.h_stability(kappa = kappa)
         
         # Initialize some storage for d2xq and d4xq
         self.dxq = np.zeros(self.N + 1)
@@ -111,7 +112,7 @@ class FD_string_model(Model):
         dt = 1/self.sr
         gamma = dt**2 * self.T + 4*  dt * self.rhol * self.eta_1
         self.h = np.sqrt((gamma + np.sqrt(gamma**2 + 16 * self.rhol * self.E * self.I * dt**2))/ (2 * self.rhol))
-        self.N = int(np.floor(kappa * self.l0 / (self.h)))
+        self.N = int(np.floor(kappa * self.l0 / (self.h))) - 1
         if odd:
             if self.N%2 == 0:
                 self.N-=1
@@ -152,7 +153,9 @@ class FD_string_model(Model):
         return - 2 * self.rhol / self.h * self.eta_1 * self.d2xq
 
     def G(self, q):
-        return np.zeros((self.N, self.Nu))
+        G_val = np.zeros((self.N, self.Nu))
+        G_val[self.N//2, 0] = 1
+        return G_val / self.h
 
     def Enl(self, q):
         match self.NL_type:
@@ -237,7 +240,8 @@ class FD_string_model(Model):
 
 if __name__ == "__main__":
     sr = 44100
-    model = FD_string_model(sr, NL_type = "GE")
+    model = FD_string_model(sr, NL_type = "GE4")
+    model.recompute_stability(sr, kappa=1)
     print("N=", model.N)
     model.print_perceptual_params()
     solver = SAVSolver(model, sr = sr, lambda0=1000)
