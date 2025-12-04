@@ -101,12 +101,6 @@ class FD_string_model(Model):
         return self.eta_0 + self.eta_1 * self.xi(omega)
     def T60(self, omega):
         return 6.9 / self.eta(omega)
-
-    def print_perceptual_params(self):
-        print(r"Inharmonicity $\Beta = $" + f"{self.beta}")
-        print(r"$f_0 = $" + f"{self.f0}")
-        print(r"$T_{60}(0) = $" + f"{self.T60(0)}")
-        print(r"$T_{60}(1000) = $" + f"{self.T60(2 * np.pi * 1000)}")
         
     def h_stability(self, odd = True, kappa = 0.9):
         dt = 1/self.sr
