@@ -1,4 +1,4 @@
-from StringGeom import *
+from python.old_solver_dafx25.StringGeom import *
 from os import mkdir
 from os.path import exists, join
 import json
