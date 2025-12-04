@@ -10,7 +10,8 @@ DEFAULT_PLOTTER_CONFIG = {
     "SAV": True,
     "interactive": True,
     "stride": 10,
-    "delay": 500
+    "delay": 500,
+    "blocking": True
 }
 
 NO_PLOTTER_CONFIG = {
@@ -22,7 +23,8 @@ NO_PLOTTER_CONFIG = {
     "SAV": False,
     "interactive": False,
     "stride": 10,
-    "delay": 500
+    "delay": 500,
+    "blocking": False
 }
 
 class Plotter():
@@ -189,7 +191,7 @@ class Plotter():
             self.fig_qpr.canvas.draw()
             self.fig_qpr.canvas.flush_events()
 
-        if block:
+        if block and self.blocking:
             plt.show(block=True)
         
     def scale_y(self, ax, data, factor = 1.2, symmetric = False):
