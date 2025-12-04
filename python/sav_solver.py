@@ -351,7 +351,9 @@ class SAVSolver():
         Returns:
             vector: g_mod(q,p, r)
         """
-        self.epsilon = r - np.sqrt(2 * self.model.Enl(q) + self.C0)
+        sqrt_Enl_q = np.sqrt(2 * self.model.Enl(q) + self.C0)
+        self.epsilon = r - sqrt_Enl_q
+        self.epsilon_rel = self.epsilon / sqrt_Enl_q
         return - self.lambda0 * self.epsilon * self.model.M * np.sign(p) / (np.sum(np.abs(p)) + self.Num_eps)
 
     ### Time stepping and integration ###
@@ -378,11 +380,11 @@ class SAVSolver():
         self.gn = self.g(qnow) + self.g_mod(qn, pn, rn)
 
         # Compute Rmid and G
-        self.Gn = self.model.G(qnow)
         if not ConstantRmid:
             self.Rmidn = self.model.Rmid(qnow)
             # Get qnext q^{n+3/2} using Shermann-Morrison
             self.A0_inv_n = self.A0_inv(self.Rmidn)
+            self.Gn = self.model.G(qnow)
 
         den = (4 + self.gn.dot(self.A0_inv_n * self.gn)) # eq 19g
 
@@ -409,8 +411,8 @@ class SAVSolver():
             ConstantRmid (bool, optional): Specifies if Rmid needs to be recomputed at each time step. Defaults to False.
         """
         ### Time vector and storage initialization ###
-        self.model.Nt = int(duration / self.dt)
-        self.t = np.arange(self.model.Nt) * self.dt
+        self.Nt = int(duration / self.dt)
+        self.t = np.arange(self.Nt) * self.dt
 
         self.storage = ResultsStorage(**storage_config)
         self.storage.reserve(self.t, self.model, self)
@@ -426,20 +428,27 @@ class SAVSolver():
             # Rmid vector is evaluated once at the begining of the simulation in this case
             self.Rmidn = self.model.Rmid(q0)
             self.A0_inv_n = self.A0_inv(self.Rmidn)
+            self.Gn = self.model.G(q0)
 
         ### Main loop ###
-        for i in range(self.model.Nt ):
-            qnext, rnext, qn, pn, epsilon = self.time_step(qlast, qnow, rnow, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
-            
-            self.storage.store(q = qn, p = pn, r= rnow,
-                           epsilon = epsilon, i = i, Rmid=self.Rmidn,
-                            G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self)
-            self.plotter.update_plots(self.storage, block=False)
+        try:
+            for i in range(self.Nt):
+                qnext, rnext, qn, pn, epsilon = self.time_step(qlast, qnow, rnow, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
+                
+                self.storage.store(q = qn, p = pn, r= rnow,
+                            epsilon = epsilon, i = i, Rmid=self.Rmidn,
+                                G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self)
+                self.plotter.update_plots(self.storage, block=False)
 
-            qlast = qnow
-            qnow = qnext
-            rnow = rnext
-        self.plotter.update_plots(self.storage, block=True)
+                qlast = qnow
+                qnow = qnext
+                rnow = rnext
+            self.plotter.update_plots(self.storage, block=True)
+            self.storage.store_success(True)
+        except Exception as e:
+            # print(e)
+            print("Simulation failed")
+            self.storage.store_success(False)
 
     def time_step_verlet(self, qlast, qnow, unow, ConstantRmid = False):
         """Returns next state by using a standard Stormer-Verlet scheme
@@ -487,8 +496,8 @@ class SAVSolver():
             ConstantRmid (bool, optional): Specifies if Rmid needs to be recomputed at each time step. Defaults to False.
         """
         ### Time vector and storage initialization ###
-        self.model.Nt = int(duration / self.dt)
-        self.t = np.arange(self.model.Nt) * self.dt
+        self.Nt = int(duration / self.dt)
+        self.t = np.arange(self.Nt) * self.dt
 
         self.storage = ResultsStorage(**storage_config)
         self.storage.reserve(self.t, self.model, self)
@@ -505,17 +514,23 @@ class SAVSolver():
             self.A0_inv_n = self.A0_inv(self.Rmidn)
 
         ### Main loop ###
-        for i in range(self.model.Nt ):
-            qnext, qn, pn = self.time_step_verlet(qlast, qnow, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
-            
-            self.storage.store(q = qn, p = pn, r= 0,
-                           epsilon = 0, i = i, Rmid=self.Rmidn,
-                            G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self, mode="verlet")
-            self.plotter.update_plots(self.storage, block=False)
+        try:
+            for i in range(self.Nt ):
+                qnext, qn, pn = self.time_step_verlet(qlast, qnow, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
+                
+                self.storage.store(q = qn, p = pn, r= 0,
+                            epsilon = 0, i = i, Rmid=self.Rmidn,
+                                G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self, mode="verlet")
+                self.plotter.update_plots(self.storage, block=False)
 
-            qlast = qnow
-            qnow = qnext
-        self.plotter.update_plots(self.storage, block=True)
+                qlast = qnow
+                qnow = qnext
+            self.plotter.update_plots(self.storage, block=True)
+            self.storage.store_success(True)
+        except Exception as e:
+            # print(e)
+            print("Simulation failed")
+            self.storage.store_success(False)
 
 if __name__ == "__main__":
     model = Model(10)

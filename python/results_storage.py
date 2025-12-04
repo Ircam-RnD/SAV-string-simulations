@@ -79,6 +79,8 @@ class ResultsStorage():
         if self.SAV:
             self.r = np.zeros(self.Nt)
 
+        self.success = False
+
     def store(self, q, p, r, epsilon, i, Rmid, G, u, solver, mode="sav"):
         if self.Energy:
             self.Ekin[i] = solver.Ek_tilde(p)
@@ -112,6 +114,9 @@ class ResultsStorage():
         # Keep track of the advance for Plotter function
         self.i = i+1
 
+    def store_success(self, success):
+        self.success = success
+
     def write(self, fname):
         """Write stored results to an HDF5 file. Uses h5py; raise informative
         error if h5py is not installed.
@@ -125,6 +130,8 @@ class ResultsStorage():
             os.makedirs(d, exist_ok=True)
 
         with h5py.File(fname, "w") as f:
+            # Did the simulation succeed ? 
+            f.attrs['success'] = json.dumps(self.success)
             # store metadata dictionaries as JSON attributes
             if hasattr(self, 'solver_dict'):
                 f.attrs['solver_dict'] = json.dumps(self.solver_dict)
