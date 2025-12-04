@@ -1,3 +1,7 @@
+"""
+Runs convergence test for the string model under a certain configuration.
+The reference is taken as an oversampled Stormer-Verlet simulation.
+"""
 import numpy as np
 import h5py
 import os
@@ -9,18 +13,13 @@ from fd_string_model import FD_string_model, DEFAULT_STRING_PARAMS
 from plotter import Plotter, DEFAULT_PLOTTER_CONFIG, NO_PLOTTER_CONFIG
 from results_storage import ResultsStorage, STATE_STORAGE_CONFIG, DEFAULT_STORAGE_CONFIG
 
-"""
-Runs convergence test for the string model under a certain configuration.
-For now, the reference is taken as the oversampled sav_solver with lambda0 = 0.
-TODO: either use a standard verlet solver, easy to implement or build the interface
-for simulating models using a external library (e.g. Diffrax)
-"""
+
 #%% Settings
 # Model and experimental configuration
 string_params = DEFAULT_STRING_PARAMS
 modes = ["Linear", "KC", "GE4", "GE"]
 
-A0s = [5e-3, 1e-2] # Initial condition amplitude
+A0s = [5e-3, 1e-2, 1.5e-2, 2e-2] # Initial condition amplitude
 duration = 0.05
 
 # Solver
@@ -29,9 +28,9 @@ N_srs = 6
 sr_ref_OF = 8
 kappa = 0.9
 
-lambda0s = [0, 1000]
+lambda0s = [-1, 1000]
 
-result_folder = "results/conv_full"
+result_folder = "results/conv_full_2"
 
 
 
@@ -83,8 +82,14 @@ for mode in modes:
 
             for lambda0 in lambda0s:
                 solver = SAVSolver(model, float(sr), float(lambda0))
-                solver.integrate(q0, u0, u_func, duration, ConstantRmid=True, plotter_config=NO_PLOTTER_CONFIG, storage_config=storage)
-                solver.storage.write(os.path.join(result_folder, f"{mode}/{A0}/sr{sr}_lambda{lambda0}.h5"))
+                if lambda0 ==-1: # Use Stormer Verlet
+                    solver.integrate_verlet(q0, u0, u_func, duration, ConstantRmid=True, plotter_config=NO_PLOTTER_CONFIG, storage_config=storage)
+                    solver.storage.write(os.path.join(result_folder, f"{mode}/{A0}/sr{sr}_lambda{lambda0}.h5"))
+                else:
+                    solver.integrate(q0, u0, u_func, duration, ConstantRmid=True, plotter_config=NO_PLOTTER_CONFIG, storage_config=storage)
+                    solver.storage.write(os.path.join(result_folder, f"{mode}/{A0}/sr{sr}_lambda{lambda0}.h5"))
+                with h5py.File(os.path.join(result_folder, f"{mode}/{A0}/sr{sr}_lambda{lambda0}.h5"), "a") as f:
+                    f.attrs["Enlratio"] = json.dumps(solver.Ep_nl(q0) / (solver.Ep_nl(q0) + solver.Ep_lin(q0)))
             print(f"Finished computing for sr = {sr}")
 
 #%% Compute references by oversampling sr_ref_OF times
@@ -93,8 +98,6 @@ for mode in modes:
         string_params["NL_type"] = mode
 
         model = FD_string_model(sr0, **string_params)
-
-        model.recompute_stability(sr, kappa)
         model.recompute_stability(sr_ref, kappa)
 
         storage = STATE_STORAGE_CONFIG

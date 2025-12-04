@@ -7,7 +7,7 @@ import numpy as np
 from helper_plots import set_size
 
 #%% Settings
-result_folder = "results/conv_full"
+result_folder = "results/conv_full_2"
 
 with h5py.File(join(result_folder, "settings.h5"), "r") as f:
     sr0 = json.loads(f.attrs["sr0"])
@@ -16,13 +16,16 @@ with h5py.File(join(result_folder, "settings.h5"), "r") as f:
     sr_ref = json.loads(f.attrs["sr_ref"])
     modes = json.loads(f.attrs["modes"])
     A0s = json.loads(f.attrs["A0s"])
+
+lambda0s = lambda0s[-1:]
+print(lambda0s)
 #%% Init plot
 Nrows = 2
 Ncols = 2
 
-fig, axs = plt.subplots(Nrows, Ncols, sharex=True, sharey=False, figsize = set_size("DAFx", fraction=1, height_ratio=0.6))
+fig, axs = plt.subplots(Nrows, Ncols, sharex=True, sharey=False, figsize = set_size("JAES", fraction=1, height_ratio=0.6))
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-markers = ['*', '+', '.', 'o', ',']
+markers = ['*', '+', '.', 'o', '1', 'v']
 
 for k, mode in enumerate(modes):
     for l, A0 in enumerate(A0s):
@@ -42,27 +45,25 @@ for k, mode in enumerate(modes):
         for i, sr in enumerate(srs):
             for j, lambda0 in enumerate(lambda0s):
                 with h5py.File(join(result_folder, f"{mode}/{A0}/sr{int(sr)}_lambda{int(lambda0)}.h5"), "r") as f:
-                    q = f["q"][...]
-                    model_setting = json.loads(f.attrs['model_dict'])
-                    q = q[::int(sr / sr0), 0]
-                    errors[i, j] = compute_error(q, q_ref)
-                    
-                    hs[i] = model_setting["h"]
+                    print(f"{mode}/{A0}/sr{int(sr)}_lambda{int(lambda0)}.h5")
+                    if f.attrs['success']:
+                        model_setting = json.loads(f.attrs['model_dict'])
+                        hs[i] = model_setting["h"]
+                        q = f["q"][...]
+                        q = q[::int(sr / sr0), 0]
+                        errors[i, j] = compute_error(q, q_ref)
+                    else:
+                        errors[i, j] = np.nan()
         
         #%% Plot
         ax = axs[k//2, k%2]
         ax.set_xscale("log")
         ax.set_yscale("log")
         for i, lambda0 in enumerate(lambda0s):
-            ax.plot(hs, errors[:, i], label=r"$\lambda_0 = $" + f"{lambda0}", ls="dotted", marker = markers[l], markersize = 5, color = colors[i])
+            ax.plot(hs, errors[:, i], label=r"$U_0 = $" + f"{A0} m", ls="dotted", marker = markers[i], markersize = 10, color = colors[l])
         if (k == 3):
             # legend
-            rows = [ax.plot([], [], color = colors[i])[0] for i in range(len(lambda0s))]
-            columns = [ax.plot([], [], markers[i], markerfacecolor='w',
-                                markeredgecolor='k')[0] for i in range(len(A0s))]
-            label_row = [fr"$\lambda_0 = {lambda0}$" for lambda0 in lambda0s]
-            label_column = [fr"$U_0 = {A0}$" for A0 in A0s]
-            ax.legend(rows + columns, label_row + label_column, bbox_to_anchor=(1, 0.5), loc = "lower left", frameon = True)
+            ax.legend(bbox_to_anchor=(1, 0.5), loc = "lower left", frameon = True)
 
             # ax.legend(frameon = True) #, ncol=3, bbox_to_anchor=(0.5, 1.05), loc = "upper center")
         # ax.set_ylim([np.min(errors) * 0.5, np.max(errors) * 2])
