@@ -30,6 +30,8 @@ class SAVSolver():
 
         self.RHSn = np.zeros(self.model.N)
 
+        self.maxEnl = 0
+
         ### Intermediary fixed quantities ###
         self.M_J0dt = self.model.M / (self.dt * self.model.J0)
 
@@ -351,9 +353,10 @@ class SAVSolver():
         Returns:
             vector: g_mod(q,p, r)
         """
-        sqrt_Enl_q = np.sqrt(2 * self.model.Enl(q) + self.C0)
-        self.epsilon = r - sqrt_Enl_q
-        self.epsilon_rel = self.epsilon / sqrt_Enl_q
+        Enl = self.model.Enl(q)
+        if Enl > self.maxEnl:
+            self.maxEnl = Enl
+        self.epsilon = r - np.sqrt(2 * Enl + self.C0)
         return - self.lambda0 * self.epsilon * self.model.M * np.sign(p) / (np.sum(np.abs(p)) + self.Num_eps)
 
     ### Time stepping and integration ###
@@ -434,7 +437,7 @@ class SAVSolver():
         try:
             for i in range(self.Nt):
                 qnext, rnext, qn, pn, epsilon = self.time_step(qlast, qnow, rnow, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
-                
+
                 self.storage.store(q = qn, p = pn, r= rnow,
                             epsilon = epsilon, i = i, Rmid=self.Rmidn,
                                 G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self)

@@ -20,6 +20,26 @@ DEFAULT_STRING_PARAMS = {
     "expos": 0.5
 }
 
+def get_T_and_l0_from_f0_beta(f0, beta, params):
+    T = np.sqrt(np.pi**4 * params["E"] * f0**2 * params["Ra"]**6 * params["rho"] / (beta * (1+beta)))
+    l0 = np.sqrt(np.pi**3 * params["E"] * params["Ra"]**4 / (4 * beta *T))
+    return T, l0
+
+def zeta(omega, gamma2, kappa2):
+    return (-gamma2 + np.sqrt(gamma2**2 +4 *kappa2*omega**2))/(2*kappa2)
+
+def get_etas_from_decays(T_60_0, T_60_1000, params):
+    mu = params["rho"] * np.pi * params["Ra"]**2
+    gamma2 = params["T"] / (mu)
+    I = np.pi * params["Ra"]**4 / 4
+    kappa2 = params["E"] * I / (mu)
+    beta_2_0 = zeta(0, gamma2, kappa2)
+    beta_2_1000 = zeta(2*np.pi*1000, gamma2, kappa2)
+    eta_0 = np.max(3*np.log(10) / (beta_2_1000 - beta_2_0) * (beta_2_1000 / T_60_0 - beta_2_0/T_60_1000), 0)
+    eta_1 = np.max(3*np.log(10) / (beta_2_1000 - beta_2_0) * (-1 / T_60_0 + 1/T_60_1000), 0)
+    return eta_0, eta_1
+
+
 class FD_string_model(Model):
     """Finite difference discretization of in-plane 
     transverse string vibrations. The string might be:
