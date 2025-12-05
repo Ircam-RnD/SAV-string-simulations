@@ -1,5 +1,6 @@
 import { html, render } from 'lit';
 
+
 import '@ircam/sc-components';
 import resumeAudioContext from './resume-audio-context.js';
 
@@ -9,6 +10,22 @@ await resumeAudioContext(audioContext);
 await audioContext.audioWorklet.addModule('./src/StringProcessor.js');
 
 let impulseWidth = 1 / 1000;
+
+// Grid of audio files to display
+const audioGrid = [
+  [
+    { label: 'KC, Ⲗ = 0', src: '/assets/KC_sr44100_lambda1000.mp3' },
+    { label: 'KC, Ⲗ = 1000', src: '/assets/KC_sr44100_lambda1000.mp3' },
+  ],
+  [
+    { label: 'GE, Ⲗ = 0', src: '/assets/GE_sr44100_lambda0.mp3' },
+    { label: 'GE, Ⲗ = 1000', src: '/assets/GE_sr44100_lambda1000.mp3' },
+  ],
+  [
+    { label: 'GE4, Ⲗ = 0', src: '/assets/GE4_sr44100_lambda0.mp3' },
+    { label: 'GE4, Ⲗ = 1000', src: '/assets/GE4_sr44100_lambda1000.mp3' },
+  ]
+];
 
 
 // Parameters
@@ -57,7 +74,21 @@ function updateParameters() {
 }
 
 render(html`
+  <h1>Audio examples</h1>
+  <p>The audio examples presented here correspond to the reults presented in Figure 2 of the paper submitted to JAES.</p>
+  <div style="display: grid; gap: 12px; grid-template-columns: repeat(${audioGrid[0].length}, minmax(0, 1fr)); max-width: 960px;">
+    ${audioGrid.map((row) => row.map((cell) => html`
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
+        <p class=audiotitle>${cell.label}</p>
+        <audio controls src="${cell.src}"></audio>
+      </div>
+    `))}
+  </div>
   <h1>Interactive simulation</h1>
+  <p>
+    You can intercat with an Interactive simulation running in the browser using the 
+    simple interface below. 
+  </p>
   <div style="position: absolute; top: 20px; right: 20px;">
     <sc-icon type="github" href="https://github.com/thomas-risse/SAV-string-simulations"></sc-icon>
   </div>

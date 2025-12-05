@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@ircam/sc-components": "^3.0.0-alpha.61",
-    "lit": "^3.1.4"
+    "lit": "^3.1.4",
+    "mathjax": "^4.0.0"
   },
-  "name": "js"
+  "name": "js",
+  "live": "nodemon server.js"
 }

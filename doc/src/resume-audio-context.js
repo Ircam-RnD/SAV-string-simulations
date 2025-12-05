@@ -9,7 +9,7 @@ export default async function resumeAudioContext(audioContext) {
           await audioContext.resume();
           resolve();
         }}
-      >Resume context</sc-button>
+      >Start audio and enter webpage</sc-button>
     `, document.body);
   });
 }
