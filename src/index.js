@@ -14,16 +14,16 @@ let impulseWidth = 1 / 1000;
 // Grid of audio files to display
 const audioGrid = [
   [
-    { label: 'KC, Ⲗ = 0', src: '/assets/KC_sr44100_lambda1000.mp3' },
-    { label: 'KC, Ⲗ = 1000', src: '/assets/KC_sr44100_lambda1000.mp3' },
+    { label: 'KC, Ⲗ = 0', src: './src/assets/KC_sr44100_lambda1000.mp3' },
+    { label: 'KC, Ⲗ = 1000', src: './src/assets/KC_sr44100_lambda1000.mp3' },
   ],
   [
-    { label: 'GE, Ⲗ = 0', src: '/assets/GE_sr44100_lambda0.mp3' },
-    { label: 'GE, Ⲗ = 1000', src: '/assets/GE_sr44100_lambda1000.mp3' },
+    { label: 'GE, Ⲗ = 0', src: './src/assets/GE_sr44100_lambda0.mp3' },
+    { label: 'GE, Ⲗ = 1000', src: './src/assets/GE_sr44100_lambda1000.mp3' },
   ],
   [
-    { label: 'GE4, Ⲗ = 0', src: '/assets/GE4_sr44100_lambda0.mp3' },
-    { label: 'GE4, Ⲗ = 1000', src: '/assets/GE4_sr44100_lambda1000.mp3' },
+    { label: 'GE4, Ⲗ = 0', src: './src/assets/GE4_sr44100_lambda0.mp3' },
+    { label: 'GE4, Ⲗ = 1000', src: './src/assets/GE4_sr44100_lambda1000.mp3' },
   ]
 ];
 
