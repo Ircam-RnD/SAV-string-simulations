@@ -4,6 +4,14 @@ import { html, render } from 'lit';
 import '@ircam/sc-components';
 import resumeAudioContext from './resume-audio-context.js';
 
+// Import audio assets so esbuild copies them to the build output
+import kc0 from '../assets/KC_sr44100_lambda0.mp3';
+import kc1000 from '../assets/KC_sr44100_lambda1000.mp3';
+import ge0 from '../assets/GE_sr44100_lambda0.mp3';
+import ge1000 from '../assets/GE_sr44100_lambda1000.mp3';
+import ge40 from '../assets/GE4_sr44100_lambda0.mp3';
+import ge41000 from '../assets/GE4_sr44100_lambda1000.mp3';
+
 
 const audioContext = new AudioContext({ sampleRate: 44100 });
 await resumeAudioContext(audioContext);
@@ -14,16 +22,16 @@ let impulseWidth = 1 / 1000;
 // Grid of audio files to display
 const audioGrid = [
   [
-    { label: 'KC, Ⲗ = 0', src: './assets/KC_sr44100_lambda1000.mp3' },
-    { label: 'KC, Ⲗ = 1000', src: './assets/KC_sr44100_lambda1000.mp3' },
+    { label: 'KC, Ⲗ = 0', src: kc0 },
+    { label: 'KC, Ⲗ = 1000', src: kc1000 },
   ],
   [
-    { label: 'GE, Ⲗ = 0', src: './assets/GE_sr44100_lambda0.mp3' },
-    { label: 'GE, Ⲗ = 1000', src: './assets/GE_sr44100_lambda1000.mp3' },
+    { label: 'GE, Ⲗ = 0', src: ge0 },
+    { label: 'GE, Ⲗ = 1000', src: ge1000 },
   ],
   [
-    { label: 'GE4, Ⲗ = 0', src: './assets/GE4_sr44100_lambda0.mp3' },
-    { label: 'GE4, Ⲗ = 1000', src: './assets/GE4_sr44100_lambda1000.mp3' },
+    { label: 'GE4, Ⲗ = 0', src: ge40 },
+    { label: 'GE4, Ⲗ = 1000', src: ge41000 },
   ]
 ];
 
@@ -86,7 +94,7 @@ render(html`
   </div>
   <h1>Interactive simulation</h1>
   <p>
-    You can intercat with an Interactive simulation running in the browser using the 
+    You can interact with an Interactive simulation running in the browser using the 
     simple interface below. 
   </p>
   <div style="position: absolute; top: 20px; right: 20px;">
