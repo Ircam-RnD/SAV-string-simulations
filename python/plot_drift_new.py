@@ -77,9 +77,10 @@ u0 = np.zeros(model.N)
 
 #%% Run simulations and plot results
 fig, axs = plt.subplots(1 + 2*len(lambda0s), 1, figsize=set_size("JAES", height_ratio=0.8), sharex=True)
+linestyles = [":", "--", "-."]
 for i, lambda0 in enumerate(lambda0s):
 
-  for mode in modes:
+  for j, mode in enumerate(modes):
     model.NL_type = mode
     # Compute SAV solution
     solver = SAVSolver(model, sr, lambda0)
@@ -96,9 +97,9 @@ for i, lambda0 in enumerate(lambda0s):
     write(os.path.join(result_folder, f"{mode}/sr{sr}_lambda{lambda0}.wav"), sr, solver.storage.q[:, 0] / np.max(np.abs(solver.storage.q[:, 0])))
 
     if mode==modes[0] and i==0:
-        axs[0].plot(solver.storage.t, [Fext(t) for t in solver.storage.t], color = "black")
+        axs[0].plot(solver.storage.t, [Fext(t) for t in solver.storage.t], color = "black", ls = linestyles[j])
         axs[0].set_ylabel(r"$f_{in}$ [N]")
-    axs[2 * i+1].plot(np.linspace(0, duration, len(f0)), f0, label = mode)
+    axs[2 * i+1].plot(np.linspace(0, duration, len(f0)), f0, label = mode, ls = linestyles[j])
     # Here, we divide espilon by the max observed nonlinear energy to get a relative measure
     print(solver.maxEnl)
     axs[2 * i+2].semilogy(solver.storage.t, np.abs(solver.storage.epsilon / solver.maxEnl), label = mode)
