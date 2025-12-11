@@ -76,7 +76,7 @@ u0 = np.zeros(model.N)
 
 
 #%% Run simulations and plot results
-fig, axs = plt.subplots(1 + 2*len(lambda0s), 1, figsize=set_size("JAES", height_ratio=0.8), sharex=True)
+fig, axs = plt.subplots(1 + 2*len(lambda0s), 1, figsize=set_size("JAES", height_ratio=0.6), sharex=True)
 linestyles = [":", "--", "-."]
 for i, lambda0 in enumerate(lambda0s):
 

@@ -25,7 +25,7 @@ Ncols = 2
 
 fig, axs = plt.subplots(Nrows, Ncols, sharex=True, sharey=False, figsize = set_size("JAES", fraction=1, height_ratio=0.6))
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-markers = ['*', '+', '.', 'o', '1', 'v']
+markers = ['*', '+', '.', '1', 'o', 'v']
 
 for k, mode in enumerate(modes):
     for l, A0 in enumerate(A0s):
@@ -60,7 +60,7 @@ for k, mode in enumerate(modes):
         ax.set_xscale("log")
         ax.set_yscale("log")
         for i, lambda0 in enumerate(lambda0s):
-            ax.plot(hs, errors[:, i], label=r"$U_0 = $" + f"{A0} m", ls="dotted", marker = markers[i], markersize = 10, color = colors[l])
+            ax.plot(hs, errors[:, i], label=r"$Q_0 = $" + f"{A0} m", ls="dotted", marker = markers[l], markersize = 10, color = colors[l])
         if (k == 3):
             # legend
             ax.legend(bbox_to_anchor=(1, 0.5), loc = "lower left", frameon = True)
@@ -95,7 +95,7 @@ for k, mode in enumerate(modes):
     # plt.xlabel("h (m)")
     # plt.ylabel("Relative error e")
 fig.text(0.47, 0.01, 'h (m)', ha='center')
-fig.text(0.47, 0.95, 'sr (Hz)', ha='center')
+fig.text(0.47, 0.95, r'$f_{\rm s}$ (Hz)', ha='center')
 fig.text(0.01, 0.5, 'Relative error e', va='center', rotation='vertical')
 plt.tight_layout()
 fig.subplots_adjust(left = 0.1, hspace=0.05, wspace=0.2)
