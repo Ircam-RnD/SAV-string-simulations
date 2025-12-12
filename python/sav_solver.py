@@ -52,7 +52,7 @@ class SAVSolver():
         # Check that all matrices and operator provided to describe the 
         # system are of the right dimensions
         x = np.zeros(self.model.N)
-        u = np.zeros((self.model.N, self.model.Nu))
+        u = np.zeros((self.model.Nu))
         J0x = np.zeros(self.model.N)
         try:
             J0x = self.model.J0 * x
@@ -245,7 +245,7 @@ class SAVSolver():
             number: P_ext^{n+1/2}
         """
         mutv = (pnow + pnext) / (2 * self.model.M)
-        return -mutv.dot(G * u)
+        return -mutv.dot(G @ u)
 
     def P_tot(self, Enow, Enext, pnow, pnext, Rmid, G, u):
         """Returns the discrete power balance. Should be zero up to
