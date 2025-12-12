@@ -384,9 +384,11 @@ class SAVSolver():
 
         # Compute Rmid and G
         if not ConstantRmid:
+            self.Rmidnlast = self.Rmidn
             self.Rmidn = self.model.Rmid(qnow)
             # Get qnext q^{n+3/2} using Shermann-Morrison
             self.A0_inv_n = self.A0_inv(self.Rmidn)
+            self.Gnlast = self.Gn
             self.Gn = self.model.G(qnow)
 
         den = (4 + self.gn.dot(self.A0_inv_n * self.gn)) # eq 19g
@@ -439,8 +441,8 @@ class SAVSolver():
                 qnext, rnext, qn, pn, epsilon = self.time_step(qlast, qnow, rnow, u_func((i+0.5) * self.dt), ConstantRmid=ConstantRmid)
 
                 self.storage.store(q = qn, p = pn, r= rnow,
-                            epsilon = epsilon, i = i, Rmid=self.Rmidn,
-                                G = self.Gn, u = u_func((i+0.5) * self.dt), solver=self)
+                            epsilon = epsilon, i = i, Rmid=self.Rmidnlast,
+                                G = self.Gnlast, u = u_func((i-0.5) * self.dt), solver=self)
                 self.plotter.update_plots(self.storage, block=False)
 
                 qlast = qnow
