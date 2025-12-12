@@ -1,10 +1,10 @@
-from StringGeom import *
+from python.old_solver_dafx25.StringGeom import *
 from os import mkdir
 from os.path import exists, join
 import json
 import shutil
 
-config_fname = "config_contact.json"
+config_fname = "config.json"
 # Read config file
 with open(config_fname) as f:
     config = json.load(f)

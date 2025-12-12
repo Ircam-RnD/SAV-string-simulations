@@ -38,4 +38,6 @@ xcode/
 externals/
 .vscode/
 .venv
-.wav
+*.wav
+*.h5
+*.pdf

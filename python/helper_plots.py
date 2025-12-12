@@ -42,6 +42,8 @@ def set_size(width, fraction=1, subplots=(1, 1), height_ratio=1):
         fig_width = 6.89111 * fraction
     elif width == 'PHD':
         fig_width = 6.30045 * fraction
+    elif width == 'JAES':
+        fig_width = 6.6929133858 * fraction
     else:
         fig_width = width * fraction
 
