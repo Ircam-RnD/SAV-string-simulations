@@ -1,5 +1,5 @@
 import numpy as np
-from model import Model
+from python.base_model import Model
 from sav_solver import SAVSolver
 from results_storage import STATE_STORAGE_CONFIG
 from plotter import NO_PLOTTER_CONFIG
