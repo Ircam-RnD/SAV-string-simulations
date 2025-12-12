@@ -136,11 +136,11 @@ class FD_string_model(Model):
         self.h = self.l0 / (self.N + 1)
 
     def build_matrices(self):
-        self.J0 = 1 / self.h
-        self.M = 1 * self.rhol / self.h
+        self.J0 = 1
+        self.M = 1 * self.rhol * self.h
 
     def Rmid(self, q):
-        return 2 * self.rhol * self.eta_0 / self.h
+        return 2 * self.rhol * self.eta_0 * self.h
     
     def d2xq_op(self, q):
         self.d2xq = -2 *q
@@ -164,12 +164,12 @@ class FD_string_model(Model):
     def Rsv_op(self, v):
         # Well in fact its dxp in this case
         self.d2xq = self.d2xq_op(v)
-        return - 2 * self.rhol / self.h * self.eta_1 * self.d2xq
+        return - 2 * self.rhol * self.h * self.eta_1 * self.d2xq
 
     def G(self, q):
         G_val = np.zeros((self.N, self.Nu))
         G_val[self.N//2, 0] = 1
-        return G_val / self.h
+        return G_val
 
     def Enl(self, q):
         match self.NL_type:
