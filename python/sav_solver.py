@@ -1,5 +1,5 @@
 import numpy as np
-from python.base_model import Model
+from base_model import Model
 from results_storage import ResultsStorage, DEFAULT_STORAGE_CONFIG
 from plotter import Plotter, DEFAULT_PLOTTER_CONFIG
 
