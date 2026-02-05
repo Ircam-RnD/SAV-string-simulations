@@ -220,20 +220,6 @@ return {};
 }
 ;
 
-message<> list{this, "list", MIN_FUNCTION{cout << args[0] << endl;
-if (args.size() == processor->getN() - 1)
-{
-  processor->setBoundary(args.data());
-}
-else
-{
-  cout << "Wrong input size, must be" << processor->getN() - 1 << endl;
-}
-return {};
-}
-}
-;
-
 CubicString(const atom &args = {})
 {
   processor = std::make_shared<StringProcessor<double>>(44100);
