@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 34.0, 100.0, 1444.0, 848.0 ],
+		"rect" : [ 34.0, 95.0, 1444.0, 853.0 ],
 		"openinpresentation" : 1,
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
@@ -21,7 +21,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 380.25, 812.0, 45.0, 45.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 380.25, 812.0, 45.0, 45.0 ]
+					"presentation_rect" : [ 288.5, 402.5, 45.0, 45.0 ]
 				}
 
 			}
@@ -395,7 +395,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 782.0, 79.75, 46.0, 22.0 ],
-					"restore" : [ 0.3 ],
+					"restore" : [ 1.059055118110236 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -582,7 +582,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 878.478257179260254, 174.130435943603516, 91.0, 22.0 ],
-					"restore" : [ 9.732283464566928 ],
+					"restore" : [ 6.87 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -3766,7 +3766,7 @@
 
 			}
  ],
-		"originid" : "pat-50",
+		"originid" : "pat-550",
 		"parameters" : 		{
 			"obj-10" : [ "toggle", "toggle", 0 ],
 			"obj-101" : [ "Base right listening", "speed", 0 ],
