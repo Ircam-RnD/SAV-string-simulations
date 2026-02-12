@@ -24,7 +24,7 @@
 					"numoutlets" : 2,
 					"outlettype" : [ "signal", "float" ],
 					"patching_rect" : [ 18.0, 101.0, 56.0, 22.0 ],
-					"sig" : 0.173913043478261
+					"sig" : 0.115942028985507
 				}
 
 			}
@@ -67,8 +67,8 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 69.0, 101.0, 80.0, 22.0 ],
-					"text" : "loadmess 0.5"
+					"patching_rect" : [ 69.0, 101.0, 73.0, 22.0 ],
+					"text" : "loadmess 2."
 				}
 
 			}
@@ -350,7 +350,7 @@
 					"numoutlets" : 2,
 					"outlettype" : [ "signal", "float" ],
 					"patching_rect" : [ 185.0, 112.0, 142.0, 22.0 ],
-					"sig" : 0.0
+					"sig" : 0.028985507246377
 				}
 
 			}
@@ -2004,7 +2004,7 @@
 
 			}
  ],
-		"originid" : "pat-52",
+		"originid" : "pat-8",
 		"parameters" : 		{
 			"obj-101" : [ "Base right listening", "speed", 0 ],
 			"obj-122" : [ "number[1]", "number[1]", 0 ],
