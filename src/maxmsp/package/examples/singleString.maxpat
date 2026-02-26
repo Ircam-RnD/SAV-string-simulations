@@ -380,7 +380,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 556.487600266933441, 211.890800952911377, 58.872340381145477, 35.0 ],
-					"restore" : [ "regularisation parameter", 10000.0 ],
+					"restore" : [ "regularisation parameter", 1000.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -494,7 +494,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 556.609940648078918, 25.580817818641663, 46.0, 22.0 ],
-					"restore" : [ "fundamental frequency", 246.900000000000006 ],
+					"restore" : [ "fundamental frequency", 246.911000000000058 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -514,25 +514,25 @@
 					"outlettype" : [ "", "", "", "" ],
 					"patching_rect" : [ 1183.0, 228.33907675743103, 56.0, 22.0 ],
 					"restore" : 					{
-						"Base excitation position" : [ 0.3 ],
+						"Base excitation position" : [ 0.543307086614173 ],
 						"Base left listening" : [ 0.3 ],
 						"Base right listening" : [ 0.638582677165353 ],
-						"Excitation LF0 amplitude" : [ 0.0 ],
-						"Excitation LF0 speed" : [ 0.572440944881889 ],
+						"Excitation LF0 amplitude" : [ 0.913385826771653 ],
+						"Excitation LF0 speed" : [ 5.45433070866141 ],
 						"Impulse Width" : [ 1.269291338582665 ],
 						"Left LF0 amplitude" : [ 0.0 ],
-						"Left LF0 speed" : [ 0.493700787401575 ],
-						"Right LF0 speed" : [ 1.359842519685048 ],
+						"Left LF0 speed" : [ 8.68267716535432 ],
+						"Right LF0 speed" : [ 9.942519685039366 ],
 						"Right LFO amplitude" : [ 0.0 ],
 						"Saw frequency" : [ 0.0 ],
 						"Vibrato Amplitude" : [ 0.0 ],
 						"Vibrato Speed" : [ 0.1 ],
 						"button" : [ 0.0 ],
-						"live.gain~" : [ -17.774581896271247 ],
+						"live.gain~" : [ -27.070279963660216 ],
 						"number" : [ 2000 ],
 						"toggleImpulse" : [ 1 ],
 						"togglePluck" : [ 1 ],
-						"toggleSaw" : [ 0 ],
+						"toggleSaw" : [ 1 ],
 						"umenu" : [ 0 ]
 					}
 ,
@@ -2599,7 +2599,7 @@
 
 							}
  ],
-						"originid" : "pat-52"
+						"originid" : "pat-294"
 					}
 ,
 					"patching_rect" : [ 11.0, 309.0, 101.05035924911499, 22.0 ],
@@ -3462,7 +3462,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-1", 2 ],
-					"midpoints" : [ 643.982748031616211, 213.0, 621.0, 213.0, 621.0, 543.0, 129.0, 543.0, 129.0, 504.0, 56.0, 504.0 ],
+					"midpoints" : [ 643.982748031616211, 213.0, 627.96875, 213.0, 627.96875, 529.2109375, 129.0, 529.2109375, 129.0, 504.0, 56.0, 504.0 ],
 					"source" : [ "obj-73", 0 ]
 				}
 
@@ -3612,7 +3612,7 @@
 
 			}
  ],
-		"originid" : "pat-50",
+		"originid" : "pat-292",
 		"parameters" : 		{
 			"obj-101" : [ "Base right listening", "speed", 0 ],
 			"obj-21" : [ "Impulse Width", "Imp. Width", 0 ],

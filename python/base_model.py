@@ -1,9 +1,11 @@
 import numpy as np
 
+
 class Model():
     """General Model class to pass to the SAVSolver.
     """
-    def __init__(self, N = 10):
+
+    def __init__(self, N=10):
         # Number of dofs
         self.N = N
         # Number of inputs
@@ -22,9 +24,9 @@ class Model():
         self.Enl = lambda q: (0.25 * np.sum(q**4)) * 1
         self.Fnl = lambda q: (q**3) * 1
         # Both functions are called at the same time in the solver,
-        # in some cases it is then computationally interesting 
+        # in some cases it is then computationally interesting
         # to compute both in the same function.
         self.EandFnl = lambda q: (self.Enl(q), self.Fnl(q))
 
     def setting(self):
-        return {"Name": self.__class__.__name__, "N": self.N} 
+        return {"Name": self.__class__.__name__, "N": self.N}
