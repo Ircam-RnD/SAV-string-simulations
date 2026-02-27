@@ -412,13 +412,12 @@ class SAVSolver():
 
         # The following bound is valid only for Rmid and M being a scalar time identity matrix
         if BoundG:
-            # self.RHSn = self.B_op(qnow) + self.C_op(qlast, np.zeros_like(self.gn),
-            #                                         self.Rmidn) + self.Gn @ unow  # eq 19b
+            self.RHSn = self.B_op(qnow) + self.C_op(qlast, np.zeros_like(self.gn),
+                                                    self.Rmidn) + self.Gn @ unow  # eq 19b
             if (self.gn.dot(self.A0_inv_n * (self.RHSn)) != 0):
-                # multiplicative_bound = - 2 * rn / (self.gn.dot(self.A0_inv *
-                #                                                (self.RHSn)
-                #                                                ))
-                multiplicative_bound = 0
+                multiplicative_bound = - 2 * rn / (self.gn.dot(self.A0_inv_n *
+                                                               (self.RHSn)
+                                                               ))
             else:
                 multiplicative_bound = 0
             if (multiplicative_bound > 1):
@@ -427,12 +426,11 @@ class SAVSolver():
                 g_mult = 1
         else:
             g_mult = 1
-        g_mult = 1
 
         den = (4 + g_mult**2 * self.gn.dot(self.A0_inv_n * self.gn))  # eq 19g
 
-        self.RHSn += self.B_op(qnow) + self.C_op(qlast, g_mult * self.gn,
-                                                 self.Rmidn) + self.Gn @ unow - g_mult * self.gn * rn
+        self.RHSn = self.B_op(qnow) + self.C_op(qlast, g_mult * self.gn,
+                                                self.Rmidn) + self.Gn @ unow - g_mult * self.gn * rn
 
         qnext = self.model.J0 * self.A0_inv_n * self.RHSn \
             - self.model.J0 * self.A0_inv_n * g_mult * self.gn / den * \
@@ -441,6 +439,8 @@ class SAVSolver():
         # Update auxiliary variable
         rnext = rn + g_mult * \
             self.gn.dot((qnext - qlast) / (2 * self.model.J0))
+        if (rnext < 0):
+            print("wtf")
         return qnext, rnext, qn, pn, self.epsilon
 
     def integrate(self, q0, u0, u_func, duration, ConstantRmid=False,

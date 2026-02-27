@@ -96,7 +96,7 @@ for i, lambda0 in enumerate(lambda0s):
         storage["p_idx"] = None
 
         solver.integrate(q0, u0, Fext, duration, ConstantRmid=True,
-                         plotter_config=NO_PLOTTER_CONFIG, storage_config=storage, BoundG=True)
+                         plotter_config=NO_PLOTTER_CONFIG, storage_config=storage, BoundG=False)
         solver.storage.write(os.path.join(
             result_folder, f"{mode}/sr{sr}_lambda{lambda0}.h5"))
 
