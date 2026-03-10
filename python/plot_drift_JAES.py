@@ -141,3 +141,5 @@ fig.subplots_adjust(hspace=0.1, wspace=0.4)
 # Save figure
 fig.savefig(os.path.join(result_folder, f"test_drift_nl_force.pdf"),
             bbox_inches='tight')
+
+plt.show(block=True)

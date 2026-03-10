@@ -421,26 +421,28 @@ class SAVSolver():
             else:
                 multiplicative_bound = 0
             if (multiplicative_bound > 1):
+                print("yo")
                 g_mult = multiplicative_bound
             else:
                 g_mult = 1
         else:
             g_mult = 1
 
-        den = (4 + g_mult**2 * self.gn.dot(self.A0_inv_n * self.gn))  # eq 19g
+        self.gn *= g_mult
 
-        self.RHSn = self.B_op(qnow) + self.C_op(qlast, g_mult * self.gn,
-                                                self.Rmidn) + self.Gn @ unow - g_mult * self.gn * rn
+        den = (4 + self.gn.dot(self.A0_inv_n * self.gn))  # eq 19g
+
+        self.RHSn = self.B_op(qnow) + self.C_op(qlast, self.gn,
+                                                self.Rmidn) + self.Gn @ unow - self.gn * rn
 
         qnext = self.model.J0 * self.A0_inv_n * self.RHSn \
-            - self.model.J0 * self.A0_inv_n * g_mult * self.gn / den * \
+            - self.model.J0 * self.A0_inv_n * self.gn / den * \
             self.gn.dot(self.A0_inv_n * self.RHSn)  # 19b+19g
 
         # Update auxiliary variable
-        rnext = rn + g_mult * \
-            self.gn.dot((qnext - qlast) / (2 * self.model.J0))
-        if (rnext < 0):
-            print("wtf")
+        rnext = rn + self.gn.dot((qnext - qlast) / (2 * self.model.J0))
+        if ((rnext + rn)/2 < 0):
+            print((rnext + rn)/2)
         return qnext, rnext, qn, pn, self.epsilon
 
     def integrate(self, q0, u0, u_func, duration, ConstantRmid=False,
