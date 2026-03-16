@@ -33,5 +33,19 @@ target_link_libraries(
 	Eigen3::Eigen
 )
 
-
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+
+# Optimisation flags
+if(NOT MSVC)
+	target_compile_options(${PROJECT_NAME} PRIVATE
+			-O3
+			-march=native
+			-ffast-math
+			-funroll-loops
+			-fno-omit-frame-pointer
+	)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+			EIGEN_NO_DEBUG
+			EIGEN_DONT_PARALLELIZE
+	)
+endif()

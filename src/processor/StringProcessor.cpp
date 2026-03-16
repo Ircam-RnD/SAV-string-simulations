@@ -286,30 +286,30 @@ std::tuple<T, T, T> StringProcessor<T>::process(T input, T bend, T posex,
                                                 T t60_0)
 {
   // Eigen::internal::set_is_malloc_allowed(false);
-  //  Pitch bend
-  // if (bend != this->bend)
-  // {
-  //   this->bend = bend;
-  //   modifyhFromBend();
-  //   updateCoefficients();
-  // }
-  // // Excitation and listening positions
-  // if (posex != this->posex || poslistL != this->poslistL ||
-  //     poslistR != this->poslistR)
-  // {
-  //   this->posex = std::clamp(posex, T(0), T(1));
-  //   this->poslistL = std::clamp(poslistL, T(0), T(1));
-  //   this->poslistR = std::clamp(poslistR, T(0), T(1));
-  // }
-  // // Modify damping from t60_0. Only eta_0 is modified to preserve stability.
-  // // F60_0 is considered to be zero here.
-  // if (t60_0 != this->t60_0 && t60_0 > 1e-4)
-  // {
-  //   this->t60_0 = t60_0;
-  //   this->eta_0 = 3 * log(10) / (t60_0);
+  // Pitch bend
+  if (bend != this->bend)
+  {
+    this->bend = bend;
+    modifyhFromBend();
+    updateCoefficients();
+  }
+  // Excitation and listening positions
+  if (posex != this->posex || poslistL != this->poslistL ||
+      poslistR != this->poslistR)
+  {
+    this->posex = std::clamp(posex, T(0), T(1));
+    this->poslistL = std::clamp(poslistL, T(0), T(1));
+    this->poslistR = std::clamp(poslistR, T(0), T(1));
+  }
+  // Modify damping from t60_0. Only eta_0 is modified to preserve stability.
+  // F60_0 is considered to be zero here.
+  if (t60_0 != this->t60_0 && t60_0 > 1e-4)
+  {
+    this->t60_0 = t60_0;
+    this->eta_0 = 3 * log(10) / (t60_0);
 
-  //   updateCoefficients();
-  // }
+    updateCoefficients();
+  }
 
   // Compute g (dependant on the nonlinear mode => value of nl)
   computeVAndVprime();

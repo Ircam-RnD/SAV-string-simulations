@@ -1,6 +1,3 @@
-# Copyright 2018 The Min-DevKit Authors. All rights reserved.
-# Use of this source code is governed by the MIT License found in the License.md file.
-
 cmake_minimum_required(VERSION 3.10)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../min-api)
@@ -50,8 +47,17 @@ target_link_libraries(
 include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)
 
 
-#############################################################
-# UNIT TEST
-#############################################################
-
-include(${C74_MIN_API_DIR}/test/min-object-unittest.cmake)
+# Optimisation flags
+if(NOT MSVC)
+	target_compile_options(${PROJECT_NAME} PRIVATE
+			-O3
+			-march=native
+			-ffast-math
+			-funroll-loops
+			-fno-omit-frame-pointer
+	)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+			EIGEN_NO_DEBUG
+			EIGEN_DONT_PARALLELIZE
+	)
+endif()

@@ -42,7 +42,7 @@ private:
   Eigen::Vector<T, -1> qlast, qnow, qnext;
 
   // Intermediary variables
-  double A0_inv;
+  T A0_inv;
 
   // Excitation and listening positions
   T posex{0}, poslistL{0}, poslistR{0};
