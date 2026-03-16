@@ -47,7 +47,7 @@ print(StringParams)
 
 model = FD_string_model(44100, **StringParams)
 
-modes = ["KC", "GE", "GE4"]  # Nonlinear modes
+modes = ["KC", "GE4"]  # Nonlinear modes
 
 # %%
 # Simulation parameters
@@ -81,7 +81,7 @@ u0 = np.zeros(model.N)
 
 # %% Run simulations and plot results
 fig, axs = plt.subplots(1 + 2*len(lambda0s), 1,
-                        figsize=set_size("JAES", height_ratio=0.6), sharex=True)
+                        figsize=set_size("JAES", height_ratio=0.7), sharex=True)
 linestyles = [":", "--", "-."]
 for i, lambda0 in enumerate(lambda0s):
 
@@ -122,10 +122,15 @@ for i, lambda0 in enumerate(lambda0s):
     axs[2*i+2].set_ylim([1e-4, 1.5e3])
     axs[2*i+2].set_yticks([1e-4, 1e-1, 1e2])
     axs[2*i+2].set_yticklabels([1e-4, 1e-1, 1e2])
-    axs[2*i+1].text(0.8, 0.6, fr"$\lambda_0 = {lambda0} s^{-1}$", transform=axs[2*i+1].transAxes,
-                    color="red", bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
-    axs[2*i+2].text(0.8, 0.6, fr"$\lambda_0 = {lambda0} s^{-1}$", transform=axs[2*i+2].transAxes,
-                    color="red", bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'))
+axs[1].text(1.05, 0, "Original \n algorithm", transform=axs[1].transAxes,
+            color="red", bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), horizontalalignment="center", verticalalignment="center", rotation=90)
+# axs[2].text(0.95, 0.6, fr"Original algorithm", transform=axs[2].transAxes,
+#             color="red", bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), horizontalalignment="right")
+
+axs[3].text(1.035, 0, fr"$\tau_0 = 0.001$ s", transform=axs[3].transAxes,
+            color="red", bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), horizontalalignment="center", verticalalignment="center", rotation=90)
+# axs[4].text(0.95, 0.6, fr"$\tau_0 = 0.001 s$", transform=axs[4].transAxes,
+#             color="red", bbox=dict(facecolor='white', edgecolor='black', boxstyle='round'), horizontalalignment="right")
 
 axs[1].legend(loc="lower center", frameon=True, fancybox=True,
               bbox_to_anchor=(0.5, 2.1), ncol=3)
