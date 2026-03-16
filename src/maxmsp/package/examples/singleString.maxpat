@@ -58,7 +58,9 @@
 					"maxclass" : "ezdac~",
 					"numinlets" : 2,
 					"numoutlets" : 0,
-					"patching_rect" : [ 11.0, 660.0, 45.0, 45.0 ]
+					"patching_rect" : [ 11.0, 660.0, 45.0, 45.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 188.0, 578.201146125793457, 45.0, 45.0 ]
 				}
 
 			}
@@ -2599,7 +2601,7 @@
 
 							}
  ],
-						"originid" : "pat-294"
+						"originid" : "pat-10"
 					}
 ,
 					"patching_rect" : [ 11.0, 309.0, 101.05035924911499, 22.0 ],
@@ -3612,7 +3614,7 @@
 
 			}
  ],
-		"originid" : "pat-292",
+		"originid" : "pat-8",
 		"parameters" : 		{
 			"obj-101" : [ "Base right listening", "speed", 0 ],
 			"obj-21" : [ "Impulse Width", "Imp. Width", 0 ],
