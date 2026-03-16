@@ -171,6 +171,8 @@ void StringProcessor<T>::updateCoefficients()
              2 * mu * eta_1 * dt / pow(h, 2);
   Current2 = -pow(dt, 2) * E * I * D42;
   Last1 = -2 * mu * eta_1 * dt / pow(h, 2);
+
+  A0_inv = 1 / (mu * (1 + dt * eta_0));
 }
 
 template <class T>
@@ -285,29 +287,29 @@ std::tuple<T, T, T> StringProcessor<T>::process(T input, T bend, T posex,
 {
   // Eigen::internal::set_is_malloc_allowed(false);
   //  Pitch bend
-  if (bend != this->bend)
-  {
-    this->bend = bend;
-    modifyhFromBend();
-    updateCoefficients();
-  }
-  // Excitation and listening positions
-  if (posex != this->posex || poslistL != this->poslistL ||
-      poslistR != this->poslistR)
-  {
-    this->posex = std::clamp(posex, T(0), T(1));
-    this->poslistL = std::clamp(poslistL, T(0), T(1));
-    this->poslistR = std::clamp(poslistR, T(0), T(1));
-  }
-  // Modify damping from t60_0. Only eta_0 is modified to preserve stability.
-  // F60_0 is considered to be zero here.
-  if (t60_0 != this->t60_0 && t60_0 > 1e-4)
-  {
-    this->t60_0 = t60_0;
-    this->eta_0 = 3 * log(10) / (t60_0);
+  // if (bend != this->bend)
+  // {
+  //   this->bend = bend;
+  //   modifyhFromBend();
+  //   updateCoefficients();
+  // }
+  // // Excitation and listening positions
+  // if (posex != this->posex || poslistL != this->poslistL ||
+  //     poslistR != this->poslistR)
+  // {
+  //   this->posex = std::clamp(posex, T(0), T(1));
+  //   this->poslistL = std::clamp(poslistL, T(0), T(1));
+  //   this->poslistR = std::clamp(poslistR, T(0), T(1));
+  // }
+  // // Modify damping from t60_0. Only eta_0 is modified to preserve stability.
+  // // F60_0 is considered to be zero here.
+  // if (t60_0 != this->t60_0 && t60_0 > 1e-4)
+  // {
+  //   this->t60_0 = t60_0;
+  //   this->eta_0 = 3 * log(10) / (t60_0);
 
-    updateCoefficients();
-  }
+  //   updateCoefficients();
+  // }
 
   // Compute g (dependant on the nonlinear mode => value of nl)
   computeVAndVprime();
@@ -347,10 +349,9 @@ std::tuple<T, T, T> StringProcessor<T>::process(T input, T bend, T posex,
       pow(dt / 2, 2) * 1 / h * g * g.dot(qlast) - pow(dt, 2) * 1 / h * g * psi;
 
   // Solving using shermann morrisson
-  double term0 = 1 / (mu * (1 + dt * eta_0));
-  qnext = term0 * righthand -
-          pow(dt / 2, 2) * pow(term0, 2) * 1 / h * g * g.dot(righthand) /
-              (1 + term0 * pow(dt / 2, 2) * 1 / h * g.dot(g));
+  qnext = A0_inv * righthand -
+          pow(dt / 2, 2) * pow(A0_inv, 2) * 1 / h * g * g.dot(righthand) /
+              (1 + A0_inv * pow(dt / 2, 2) * 1 / h * g.dot(g));
 
   psi = psi + 0.5 * g.dot(qnext - qlast);
 

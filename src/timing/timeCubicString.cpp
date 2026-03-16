@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "CubicStringProcessor.h"
+#include "StringProcessor.h"
 
 using namespace std::chrono;
 
@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
   float t60_1 = 6;
   std::array<float, 5> f0s{20, 50, 100, 200, 500};
 
-  CubicStringProcessor<double> csp(sr);
+  StringProcessor<double> csp(sr);
   csp.alpha = alpha;
   csp.beta = beta;
   csp.t60_0 = t60_0;
@@ -39,14 +39,14 @@ int main(int argc, char const *argv[])
   csp.reinitDsp(sr);
 
   // Without control term
-  CubicStringProcessor<double> cspVanilla(sr, false);
+  StringProcessor<double> cspVanilla(sr, false);
   cspVanilla.alpha = alpha;
   cspVanilla.beta = beta;
   cspVanilla.t60_0 = t60_0;
   cspVanilla.t60_1 = t60_1;
   cspVanilla.reinitDsp(sr);
 
-  CubicStringProcessor<float> cspFloat(sr);
+  StringProcessor<float> cspFloat(sr);
   cspFloat.alpha = alpha;
   cspFloat.beta = beta;
   cspFloat.t60_0 = t60_0;
@@ -76,7 +76,7 @@ int main(int argc, char const *argv[])
     std::cout << "f0 = " << f0s[i] << ", N = " << csp.getN() << std::endl;
     resultFile << std::setw(6) << f0s[i] << std::setw(6) << csp.getN();
 
-    // Time CubicStringProcessor
+    // Time StringProcessor
     start = high_resolution_clock::now();
     for (int i = 0; i < sr * simDuration; i++)
     {
@@ -86,11 +86,11 @@ int main(int argc, char const *argv[])
     rtRatio = (duration_cast<microseconds>(stop - start)).count() * 1e-6 /
               simDuration;
 
-    std::cout << "Time CubicStringProcessor: " << rtRatio * 100 << "%"
+    std::cout << "Time StringProcessor: " << rtRatio * 100 << "%"
               << std::endl;
     resultFile << std::setw(width) << rtRatio * 100 << "%";
 
-    // Time CubicStringProcessor Vanilla
+    // Time StringProcessor Vanilla
     start = high_resolution_clock::now();
     for (int i = 0; i < sr * simDuration; i++)
     {
@@ -100,11 +100,11 @@ int main(int argc, char const *argv[])
     rtRatio = (duration_cast<microseconds>(stop - start)).count() * 1e-6 /
               simDuration;
 
-    std::cout << "Time CubicStringProcessor: " << rtRatio * 100 << "%"
+    std::cout << "Time StringProcessor: " << rtRatio * 100 << "%"
               << std::endl;
     resultFile << std::setw(width) << rtRatio * 100 << "%";
 
-    // Time CubicStringProcessor float
+    // Time StringProcessor float
     start = high_resolution_clock::now();
     for (int i = 0; i < sr * simDuration; i++)
     {
@@ -114,7 +114,7 @@ int main(int argc, char const *argv[])
     rtRatio = (duration_cast<microseconds>(stop - start)).count() * 1e-6 /
               simDuration;
 
-    std::cout << "Time CubicStringProcessor Float: " << rtRatio * 100 << "%"
+    std::cout << "Time StringProcessor Float: " << rtRatio * 100 << "%"
               << std::endl;
     resultFile << std::setw(width) << rtRatio * 100 << "%" << std::endl;
   }
