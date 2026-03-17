@@ -7,6 +7,15 @@
 
 #include <Eigen/Dense>
 
+enum NLMODE
+{
+  LINEAR,
+  KC,
+  GE,
+  CONTACT,
+  GECONTACT
+};
+
 template <class T>
 class StringProcessor
 {
@@ -18,7 +27,7 @@ private:
 
   // nonlinear mode  0: linear, 1: KC, 2: cubic geom, 3: contact, 4: Geometric +
   // Contact
-  int nl_mode{2};
+  NLMODE nl_mode{GE};
 
   // Contact parameter (only needed for nl == 3)
   T kc{1e9}, alphac{1.4};
@@ -65,7 +74,7 @@ public:
 
   void setBoundary(std::vector<T> in);
 
-  void reinitDsp(float sampleRate);
+  bool reinitDsp(float sampleRate);
 
   void updateCoefficients();
 
@@ -109,7 +118,7 @@ public:
   int getN() { return N; };
 
   // Nonlinear mode
-  int nonlinear_mode{2};
+  NLMODE nonlinear_mode{GE};
 };
 
 #endif

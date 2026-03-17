@@ -111,7 +111,7 @@ void StringProcessor<T>::setBoundary(std::vector<T> in)
 }
 
 template <class T>
-void StringProcessor<T>::reinitDsp(float sampleRate)
+bool StringProcessor<T>::reinitDsp(float sampleRate)
 {
   fbend = f0;
   // Recompute physical coefficients from high level parameters
@@ -153,6 +153,8 @@ void StringProcessor<T>::reinitDsp(float sampleRate)
   boundary = -Eigen::Vector<T, -1>::Ones(N - 1) * 1e-3;
 
   psi = 0;
+
+  return true;
 }
 template <class T>
 void StringProcessor<T>::updateCoefficients()
@@ -180,11 +182,11 @@ void StringProcessor<T>::computeVAndVprime()
 {
   switch (nl_mode)
   {
-  case 0:
+  case LINEAR:
     V = 0;
     Vprime.setZero();
     break;
-  case 1:
+  case KC:
     dxq.setZero();
     dxq.head(N - 1) = qnow;
     dxq.tail(N - 1) -= qnow;
@@ -194,7 +196,7 @@ void StringProcessor<T>::computeVAndVprime()
     V = E * A / (8 * l0) * h * h * pow(dxq2, 2);
     Vprime = -E * A / (2 * l0) * h * dxq2 * (dxq.tail(N - 1) - dxq.head(N - 1));
     break;
-  case 2:
+  case GE:
     dxq.setZero();
     dxq.head(N - 1) = qnow;
     dxq.tail(N - 1) -= qnow;
@@ -204,13 +206,13 @@ void StringProcessor<T>::computeVAndVprime()
     Vprime = -(E * A - T0) / 2 * (dxq3.tail(N - 1) - dxq3.head(N - 1));
     V = (E * A - T0) / 8 * h * (dxq3.cwiseProduct(dxq)).sum();
     break;
-  case 3:
+  case CONTACT:
     V = ((-qnow + boundary).cwiseMax(0).array().pow(alphac + 1)).sum() * kc /
         (alphac + 1) * h;
     Vprime =
         -((-qnow + boundary).cwiseMax(0).array().pow(alphac)).matrix() * kc * h;
     break;
-  case 4:
+  case GECONTACT:
     // Geometric + Contact
     dxq.setZero();
     dxq.head(N - 1) = qnow;

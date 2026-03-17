@@ -24,6 +24,9 @@ if (APPLE)
     endif()
 endif()
 
+# Export compile config
+add_definitions(-DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
+
 
 # Misc setup and subroutines
 include(${CMAKE_CURRENT_SOURCE_DIR}/source/min-api/script/min-package.cmake)
