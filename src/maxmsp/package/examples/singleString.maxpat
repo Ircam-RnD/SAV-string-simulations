@@ -225,7 +225,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 121.0, 347.0, 68.0, 22.0 ],
-					"restore" : [ 1.171671067420574 ],
+					"restore" : [ 0.731232055151813 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -342,7 +342,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 559.609940648078918, 309.0, 40.0, 22.0 ],
-					"restore" : [ 16.0 ],
+					"restore" : [ 10.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -401,7 +401,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 556.609940648078918, 185.864509105682373, 66.0, 22.0 ],
-					"restore" : [ "second decay time", 8.0 ],
+					"restore" : [ "second decay time", 4.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -439,7 +439,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 556.609940648078918, 121.325500667095184, 66.0, 22.0 ],
-					"restore" : [ "first decay time", 12.0 ],
+					"restore" : [ "first decay time", 10.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -477,7 +477,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 556.609940648078918, 56.786492228507996, 59.0, 22.0 ],
-					"restore" : [ "beta", 0.00011 ],
+					"restore" : [ "beta", 0.0003 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -496,7 +496,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 556.609940648078918, 25.580817818641663, 46.0, 22.0 ],
-					"restore" : [ "fundamental frequency", 246.911000000000058 ],
+					"restore" : [ "fundamental frequency", 40.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0,
 						"parameter_mappable" : 0
@@ -516,25 +516,25 @@
 					"outlettype" : [ "", "", "", "" ],
 					"patching_rect" : [ 1183.0, 228.33907675743103, 56.0, 22.0 ],
 					"restore" : 					{
-						"Base excitation position" : [ 0.543307086614173 ],
+						"Base excitation position" : [ 0.433858267716535 ],
 						"Base left listening" : [ 0.3 ],
 						"Base right listening" : [ 0.638582677165353 ],
-						"Excitation LF0 amplitude" : [ 0.913385826771653 ],
-						"Excitation LF0 speed" : [ 5.45433070866141 ],
-						"Impulse Width" : [ 1.269291338582665 ],
-						"Left LF0 amplitude" : [ 0.0 ],
-						"Left LF0 speed" : [ 8.68267716535432 ],
-						"Right LF0 speed" : [ 9.942519685039366 ],
-						"Right LFO amplitude" : [ 0.0 ],
-						"Saw frequency" : [ 0.0 ],
+						"Excitation LF0 amplitude" : [ 0.0 ],
+						"Excitation LF0 speed" : [ 0.099999999999999 ],
+						"Impulse Width" : [ 1.113385826771654 ],
+						"Left LF0 amplitude" : [ 0.070866141732283 ],
+						"Left LF0 speed" : [ 0.336220472440945 ],
+						"Right LF0 speed" : [ 0.572440944881898 ],
+						"Right LFO amplitude" : [ 0.062992125984252 ],
+						"Saw frequency" : [ 402.629605655012426 ],
 						"Vibrato Amplitude" : [ 0.0 ],
 						"Vibrato Speed" : [ 0.1 ],
 						"button" : [ 0.0 ],
-						"live.gain~" : [ -27.070279963660216 ],
-						"number" : [ 2000 ],
-						"toggleImpulse" : [ 1 ],
-						"togglePluck" : [ 1 ],
-						"toggleSaw" : [ 1 ],
+						"live.gain~" : [ -25.414396525872203 ],
+						"number" : [ 200 ],
+						"toggleImpulse" : [ 0 ],
+						"togglePluck" : [ 0 ],
+						"toggleSaw" : [ 0 ],
 						"umenu" : [ 0 ]
 					}
 ,
@@ -840,7 +840,7 @@
 					"annotation" : "Samplerate",
 					"blanksym" : "",
 					"id" : "obj-111",
-					"items" : [ 44100, ",", 48000, ",", 88200, ",", 96000 ],
+					"items" : [ 44100, ",", 48000, ",", 88200, ",", 96000, ",", 176400, ",", 192000 ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -1001,7 +1001,7 @@
 								"filename" : "parrots.mp3",
 								"filekind" : "audiofile",
 								"id" : "u545004246",
-								"selection" : [ 0.513888888888889, 0.513888888888889 ],
+								"selection" : [ 0.3125, 0.604166666666667 ],
 								"loop" : 0,
 								"content_state" : 								{
 
@@ -2601,7 +2601,7 @@
 
 							}
  ],
-						"originid" : "pat-10"
+						"originid" : "pat-48"
 					}
 ,
 					"patching_rect" : [ 11.0, 309.0, 101.05035924911499, 22.0 ],
@@ -3614,7 +3614,7 @@
 
 			}
  ],
-		"originid" : "pat-8",
+		"originid" : "pat-46",
 		"parameters" : 		{
 			"obj-101" : [ "Base right listening", "speed", 0 ],
 			"obj-21" : [ "Impulse Width", "Imp. Width", 0 ],

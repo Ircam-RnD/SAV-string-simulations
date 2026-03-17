@@ -21,7 +21,8 @@ private:
   std::atomic<double> velocity{0.0};
 
   // Excitation signal
-  int excitationType{0}; // 0 for "struck" 1 for "pluck"
+  int cachedExcitationType{0}; // 0 for "struck" 1 for "pluck"
+  float cachedImpulseWidth{1e-3};
   float elapsedTimeImpulse{1};
   float inputForce{0};
 
@@ -47,9 +48,10 @@ public:
     range{0, 1000000},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
-          newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->lambda0 = args[0];
+          if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
+            newProcessor = std::make_shared<StringProcessor<double>>(*processor);
+          if (newProcessor)
+            newProcessor->lambda0 = args[0];
         return args;
       }
     }
@@ -62,9 +64,10 @@ public:
     range{0.1, 1},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->alpha = args[0];
+        if (newProcessor)
+          newProcessor->alpha = args[0];
         return args;
       }
     }
@@ -77,9 +80,10 @@ public:
     range{1, 10000},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->f0 = args[0];
+        if (newProcessor)
+          newProcessor->f0 = args[0];
         return args;
       }
     }
@@ -87,14 +91,15 @@ public:
 
   attribute<number, threadsafe::no, limit::clamp> beta{
     this,
-    "beta",
+    "inharmonicity",
     1e-4,
     range{1e-12, 1},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->beta = args[0];
+        if (newProcessor)
+          newProcessor->beta = args[0];
         return args;
       }
     }
@@ -119,10 +124,12 @@ public:
     range{1e-4, 100},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->t60_0 = args[0];
-        newProcessor->t60_1 = newProcessor->t60_0 * brightness;
+        if (newProcessor){
+          newProcessor->t60_0 = args[0];
+          newProcessor->t60_1 = newProcessor->t60_0 * brightness;
+        }
         return args;
       }
     }
@@ -135,9 +142,10 @@ public:
     range{0, 1000},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->fd0 = args[0];
+        if (newProcessor)
+          newProcessor->fd0 = args[0];
         return args;
       }
     }
@@ -150,9 +158,10 @@ public:
     range{1e-2, 1},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->t60_1 = newProcessor->t60_0 * brightness;
+        if (newProcessor)
+          newProcessor->t60_1 = newProcessor->t60_0 * static_cast<double>(args[0]);
         return args;
       }
     }
@@ -160,14 +169,15 @@ public:
 
   attribute<number, threadsafe::no, limit::clamp> fd1{
     this,
-    "brightness frequency",
+    "second decay frequency",
     1000,
     range{100, 10000},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->fd1 = args[0];
+        if (newProcessor)
+          newProcessor->fd1 = args[0];
         return args;
       }
     }
@@ -180,9 +190,22 @@ public:
     range{0, 4},
     setter{
       MIN_FUNCTION{
-        if (reinitFlag.exchange(false)) 
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor) 
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-        newProcessor->nonlinear_mode = args[0];
+        if (newProcessor)
+          newProcessor->nonlinear_mode = args[0];
+        return args;
+      }
+    }
+  };
+
+  attribute<int, threadsafe::no, limit::clamp> excitationType{
+    this,
+    "excitation mode",
+    0,
+    range{0, 1},
+    setter{
+      MIN_FUNCTION{
         return args;
       }
     }
@@ -191,17 +214,16 @@ public:
   message<> note{
     this,
     "note",
-    "Trigger a note: arg0 frequency [Hz], arg1 velocity [0..1]",
+    "Trigger a note: arg0 frequency [Hz], arg1 velocity",
     MIN_FUNCTION{
       if (args.size() >= 2 && sr > 0){
-        double velocity = std::max(0.0, std::min(1.0, (double)args[1]));
-        this->velocity.store(velocity);
-
-        if (reinitFlag.exchange(false))
+        if ((reinitFlag.exchange(false) or !newProcessor) and processor)
           newProcessor = std::make_shared<StringProcessor<double>>(*processor);
-
-        newProcessor->f0 = args[0];
-        swapProc.store(newProcessor->reinitDsp(sr));
+        if (newProcessor){
+          newProcessor->f0 = args[0];
+          swapProc.store(newProcessor->reinitDsp(sr));
+        }
+        this->velocity.store(args[1]);
       }
       return args;
     }
@@ -212,7 +234,10 @@ public:
     "dspsetup",
     MIN_FUNCTION{
       sr = args[0];
-      processor->reinitDsp(sr);
+      if (processor)
+        processor->reinitDsp(sr);
+      if (newProcessor)
+        newProcessor->reinitDsp(sr);
       return {};
     }
   };
@@ -252,6 +277,7 @@ public:
   CubicStringMidi(const atom &args = {})
   {
     processor = std::make_shared<StringProcessor<double>>(44100);
+    newProcessor = std::make_shared<StringProcessor<double>>(*processor);
   }
 
   samples<3>
@@ -265,18 +291,20 @@ public:
       reinitFlag.store(true);
       processor = newProcessor;
       elapsedTimeImpulse = 0;
+      cachedExcitationType = excitationType;
+      cachedImpulseWidth = impulseWidth;
     }
 
     // Compute input
-    if (excitationType == 0)
+    if (cachedExcitationType == 0)
     {
-      inputForce = velocity.load() * sin(M_PI * elapsedTimeImpulse / impulseWidth) * float(elapsedTimeImpulse < impulseWidth);
+      inputForce = velocity.load() * sin(M_PI * elapsedTimeImpulse / cachedImpulseWidth) * float(elapsedTimeImpulse < cachedImpulseWidth);
     }
     else
     {
       inputForce = velocity.load() / 2 *
-                  ((1 - cos(M_PI * elapsedTimeImpulse / impulseWidth)) * (float(elapsedTimeImpulse < impulseWidth)) +
-                    (1 + cos(M_PI * (elapsedTimeImpulse - impulseWidth) * 10 / impulseWidth)) * float((elapsedTimeImpulse > impulseWidth) and (elapsedTimeImpulse < impulseWidth * 1.1)));
+                  ((1 - cos(M_PI * elapsedTimeImpulse / cachedImpulseWidth)) * (float(elapsedTimeImpulse < cachedImpulseWidth)) +
+                    (1 + cos(M_PI * (elapsedTimeImpulse - cachedImpulseWidth) * 10 / cachedImpulseWidth)) * float((elapsedTimeImpulse > cachedImpulseWidth) and (elapsedTimeImpulse < cachedImpulseWidth * 1.1)));
     }
     elapsedTimeImpulse += float(1) / sr;
 
@@ -288,6 +316,8 @@ public:
       this->poslistR = poslistR;
     if (t60_0Inlet.has_signal_connection())
       this->t60_0mod = t60_0;
+    else
+      this->t60_0mod = this->t60_0;
 
     auto [outL, outR, epsilon] = processor->process(double(inputForce),
                                                     double(0.0), // no pbend dynamic in note API
