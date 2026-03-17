@@ -160,7 +160,7 @@ public:
 
   attribute<number, threadsafe::no, limit::clamp> fd1{
     this,
-    "brightness freqeuncy",
+    "brightness frequency",
     1000,
     range{100, 10000},
     setter{
