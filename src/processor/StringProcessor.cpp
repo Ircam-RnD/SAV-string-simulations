@@ -299,10 +299,12 @@ std::tuple<T, T, T> StringProcessor<T>::process(T input, T bend, T posex, T posl
 
   if (controlTerm)
   {
-    computeV();
-    epsilon = psi - sqrt(2 * V);
+    // computeV();
+    epsilon = psi - sqrt(2 * (V + Vlast) * 0.5);
     g += -lambda0 * epsilon * dt * ((qnow - qlast).array() > 0).select(Eigen::Vector<T, -1>::Ones(N - 1), -Eigen::Vector<T, -1>::Ones(N - 1)) / ((qnow - qlast).template lpNorm<1>() + 1e-12);
   }
+
+  Vlast = V;
 
   // Linear part
   righthand = Current0.cwiseProduct(qnow) + Last0 * qlast;

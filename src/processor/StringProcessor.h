@@ -34,7 +34,7 @@ private:
 
   // Nonlinear part
   Eigen::Vector<T, -1> g, dxq, dxq3, Vprime;
-  T psi{0}, epsilon{0}, V{0};
+  T psi{0}, epsilon{0}, V{0}, Vlast{0};
 
   // State
   Eigen::Vector<T, -1> qlast, qnow, qnext;

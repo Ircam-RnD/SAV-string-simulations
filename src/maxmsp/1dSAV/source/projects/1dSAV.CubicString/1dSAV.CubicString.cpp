@@ -10,8 +10,8 @@ private:
   std::shared_ptr<StringProcessor<double>> processor;
   bool pIntialised{false};
   std::shared_ptr<StringProcessor<double>> newProcessor;
-  float sr{0};
-  float pbend{0}, posex{0.9}, poslistL{0.3}, poslistR{0.3}, t60_0mod{4};
+  double sr{0};
+  double pbend{0}, posex{0.9}, poslistL{0.3}, poslistR{0.3}, t60_0mod{4};
   std::atomic<bool> reinitFlag{false};
 
 public:
